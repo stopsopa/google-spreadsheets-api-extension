@@ -1,0 +1,17 @@
+{
+    "name": "stopsopa/google-spreadsheets-api-extension",
+    "description": "My own approach to manipulating data in Google Spreadsheets ",
+    "license": "MIT",
+    "authors": [    
+        {
+            "name": "Szymon Działowski",
+            "email": "szymon.dzialowski@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": { "Stopsopa\\GoogleSpreadsheets\\": "" }
+    },
+    "require" : {
+        "google/apiclient": "1.0.*@beta"
+    }
+}
