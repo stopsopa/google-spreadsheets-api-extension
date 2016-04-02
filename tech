@@ -1,8 +1,12 @@
 travis-ci encryption
     https://docs.travis-ci.com/user/encryption-keys/
+    https://docs.travis-ci.com/user/encrypting-files/
+
 
 instalation gem fix:
     http://stackoverflow.com/a/8113213
+
+# var SAI - content of .p12 key file encoded by basw64 and then: g(travis-ci encryption) (https://docs.travis-ci.com/user/encryption-keys/)
 
 ------ vvv
 $ travis encrypt SOVEVAR=secretvalue
@@ -14,3 +18,4 @@ Pro Tip: You can add it automatically by running with --add.
 ------ ^^^
 
 https://github.com/google/google-api-php-client/issues/913
+
