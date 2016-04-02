@@ -1,0 +1,14 @@
+travis-ci encryption
+    https://docs.travis-ci.com/user/encryption-keys/
+
+instalation gem fix:
+    http://stackoverflow.com/a/8113213
+
+------ vvv
+$ travis encrypt SOVEVAR=secretvalue
+Please add the following to your .travis.yml file:
+
+  secure: "B2ZFiJZH...KWQNjfX2kgw="
+
+Pro Tip: You can add it automatically by running with --add.
+------ ^^^

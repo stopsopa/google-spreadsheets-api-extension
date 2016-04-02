@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit
+    bootstrap="vendor/autoload.php"
+    colors="true"
+>
+    <!--verbose="true"-->
+    <!--beStrictAboutTestsThatDoNotTestAnything="true"-->
+    <!--beStrictAboutOutputDuringTests="true"   https://phpunit.de/manual/current/en/risky-tests.html -->
+    <!--referencja jest tu: http://apigen.juzna.cz/doc/sebastianbergmann/phpunit/class-PHPUnit_Util_Configuration.html-->
+    <testsuites>
+        <testsuite name="Test phpunit">
+            <directory>./Tests</directory>
+            <!--<file>tests/file.php</file>-->
+        </testsuite>
+    </testsuites>
+
+
+    <!-- dla wygenerowania codecoverage vvv -->
+
+    <!-- phpunit - -coverage-clover build/logs/clover.xml -->
+    <logging>
+        <log type="coverage-clover" target="build/logs/clover.xml"/>
+    </logging>
+
+    <filter>
+        <whitelist>
+            <directory suffix="Test.php">./Tests</directory>
+            <exclude>
+                <directory>./vendor</directory>
+            </exclude>
+        </whitelist>
+    </filter>
+    <!-- dla wygenerowania codecoverage ^^^ -->
+
+    <!--<php>-->
+        <!--&lt;!&ndash; dostępne jako $GLOBALS['DB_DSN']&ndash;&gt;-->
+        <!--&lt;!&ndash;używać na zasadzie user@desktop> phpunit - -configuration developer-a.xml MyTests/ &ndash;&gt;-->
+        <!--&lt;!&ndash;tak sugeruje dokumentacja https://phpunit.de/manual/current/en/database.html&ndash;&gt;-->
+        <!--<var name="DB_DSN" value="mysql:dbname=myguestbook;host=localhost" />-->
+        <!--<var name="DB_USER" value="user" />-->
+        <!--<var name="DB_PASSWD" value="passwd" />-->
+        <!--<var name="DB_DBNAME" value="myguestbook" />-->
+        <!--&lt;!&ndash;        <includePath>.</includePath>-->
+                <!--<ini name="foo" value="bar"/>-->
+                <!--<const name="foo" value="bar"/>-->
+                <!--<var name="foo" value="bar"/>-->
+                <!--<env name="foo" value="bar"/>-->
+                <!--<post name="foo" value="bar"/>-->
+                <!--<get name="foo" value="bar"/>-->
+                <!--<cookie name="foo" value="bar"/>-->
+                <!--<server name="foo" value="bar"/>-->
+                <!--<files name="foo" value="bar"/>-->
+                <!--<request name="foo" value="bar"/>&ndash;&gt;-->
+    <!--</php>-->
+</phpunit>
