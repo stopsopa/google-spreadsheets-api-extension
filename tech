@@ -12,3 +12,5 @@ Please add the following to your .travis.yml file:
 
 Pro Tip: You can add it automatically by running with --add.
 ------ ^^^
+
+https://github.com/google/google-api-php-client/issues/913

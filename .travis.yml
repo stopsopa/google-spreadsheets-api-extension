@@ -15,7 +15,7 @@ before_script:
   - mkdir -p build/logs
 
 install:
-  - composer require stopsopa/google-spreadsheets-api-extension
+  - composer require stopsopa/google-spreadsheets-api-extension:dev-master
 
 script:
   - phpunit --coverage-clover build/logs/clover.xml
@@ -49,5 +49,6 @@ after_success:
 #   - composer require symfony/framework-bundle:${SYMFONY_VERSION}
 env:
   global:
-    secure: D2OOTKiKotW+cfysrn7HuzzJFVqMPMJ73Z/2U2MgeBkmpqBZdtx7MqCyO40kgylN24FTbB6vVeeNR7szbLfp2BD2SwrBMmIRCCTWo09pUvmOalww38/vK3U5mmDpiX5wOOlQnpkGyzOV/L0PD+M15mkhSmNFb9tNfs5lxvpJEn+i3xjX67hcqPUQsnlvgUTmNx7QCvqDZMPdRkgHC95zEy2wzMNDu+uG3xAoPYiinRhhek1TaTRKIqJxv2K7KDtu34iNncEz3cpavhNnVwodxwi95P80pc+Ko2RKA/nqJEyhHAFksLRVn/ewq5c5hz4x2AwAomlGh6+pTBencouibmREpIGnK8fQ/6GZueHwQuRfz2/aiSMCKl2Hw1+qx++WDWsfVfn3Mv9ZFUnMB6yZ2KTRHvPPE+FmQMbt1IYhGz00BqImQHgtexBvR83MdbfSjIYmGQ5PvE4CWp7ZDbRVAqRGbmUWK33R9JqSDv4Yk8zk4f0quj+kfWKW9G0YeVJodmYQUFL5O0ieAMQBVY6oU9pbdqkprE+lVw9NqYb2Rf21XgizmCf8ieY8bh+x4vHCbnYOT5FdNT+KyPM1eyzQE6sMbqh061oOwMxoKBobuQwJTt5opPXfz3N/QMHNKKJpHJh1djQBzNpBwJIJGXEJO0P1VRIPIlY+oxkQSk3K5NA=
+    # var SOMEVAR
+   - secure: WZGqW54mPTlV73BS8d65Emp1U133rcH5kfwP1HaJd/rEPm8pcmfvZztLeOhJ15Pb5VGviBFU6NMFadQic/yVNMX+4wBndURbIfyDhRxtes+0aZTDUBAfecF2uoH02MYpZCkQpvhxHfjK2rb2ZoKLceEq794gGsuBBrGyt9aIAEgimJC6p1ZqCawRD23lAGZkzKAHxZskHjelvXW9WWHsGCP8SF0jWBkbK4/9MdVjs9sB2S+N9zyWT/wY20Z4mwudP+bNvtTZ43Y2D+ZC+o1ao++m5hXG5uR1Hwg2er0v3rAb7HPdtt3gOwGiVpxT6guQ9a0sFmvRCzTEAGI6iIUpX7mZ3xko1obEAYdipdJRjzX1i5e80ZyBaT7UZdUDGeG+vpopCGd0h5osk8XIWJNCWLoDdFNGkdhB2CRBvR6465501nWCrImxT6WU6+LdI9JBrn45bVUNhajJP9on5wMnIMvw6msyn8SK8TwtXGnZbEUSymGuOoCGyEu8uAcdQ7U8Nb3p755Qo7WWzumBvPKvdA/iQXOH0COU9dWV/+ZbUnDpqNYNng8uIMgnFj/63DBdlPXagZwllAShKYcZyr5jJf7FWiukRvutbowGge/fpFgsbWZWo7Ps6My64DpEuxb98edx/nvDN5Ee4OB55WNQ9WWdho8QhVXaHZYq8ZrZfps=
 
