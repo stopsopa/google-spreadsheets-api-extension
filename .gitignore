@@ -3,3 +3,4 @@
 /build
 /composer.lock
 *.p12
+/Tests/storage.json
