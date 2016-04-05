@@ -5,6 +5,7 @@ use Exception;
 use Google_Http_Request;
 use Google_Client;
 use Google_Auth_AssertionCredentials;
+use Stopsopa\GoogleSpreadsheets\Utils\CellConverter;
 
 /**
  * Class GoogleSpreadsheets
@@ -233,4 +234,56 @@ xml
         return $this;
     }
 
+    /**
+     * https://developers.google.com/google-apps/spreadsheets/data#retrieve_a_cell-based_feed
+     */
+    public function getCellsData($key, $wid) {
+        $data = $this->api("/feeds/cells/$key/$wid/private/full");
+
+        die(print_r($data));
+    }
+    /**
+     * https://developers.google.com/google-apps/spreadsheets/data#retrieve_a_list-based_feed
+     */
+    public function update($key, $wid, $data) {
+
+        $xml = <<<xml
+<feed xmlns="http://www.w3.org/2005/Atom"
+      xmlns:batch="http://schemas.google.com/gdata/batch"
+      xmlns:gs="http://schemas.google.com/spreadsheets/2006">
+  <id>https://spreadsheets.google.com/feeds/cells/$key/$wid/private/full</id>
+xml;
+
+
+        foreach ($data as $cell => $d) {
+
+            $rc = CellConverter::anyToRC($cell);
+
+            $c = 'R'.$rc['r'].'C'.$rc['c'];
+
+            $xml .= <<<xml
+  <entry>
+    <batch:id>$c</batch:id>
+    <batch:operation type="update"/>
+    <id>https://spreadsheets.google.com/feeds/cells/$key/$wid/private/full/$c</id>
+    <link rel="edit" type="application/atom+xml" href="https://spreadsheets.google.com/feeds/cells/$key/$wid/private/full/$c"/>
+    <gs:cell row="{$rc['r']}" col="{$rc['c']}" inputValue="$d"/>
+  </entry>
+xml;
+        }
+
+
+        $xml .= '</feed>';
+
+        $data = $this->api("/feeds/cells/$key/$wid/private/full/batch", 'post', $xml, [
+            "Content-Type" => "application/atom+xml",
+
+            // http://stackoverflow.com/a/24128641
+            // http://stackoverflow.com/a/23465333
+            // g(Updating cell in Google Spreadsheets returns error “Missing resource version ID” / “The remote server returned an error: (400) Bad Request.”)
+            "If-Match"=> "*"
+        ]);
+
+//        die(print_r($data));
+    }
 }

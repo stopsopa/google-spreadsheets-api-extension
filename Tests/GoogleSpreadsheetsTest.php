@@ -42,6 +42,16 @@ class GoogleSpreadsheetsTest extends PHPUnit_Framework_TestCase {
             return $storage[$key];
         }
     }
+    protected function findFirstWorksheet() {
+
+        $service = $this->_getService();
+
+        $key = $this->storage('key');
+
+        $list = $service->findWorksheets($key);
+
+        return $list[0]['id'];
+    }
 
     protected function _getSAI() {
         return getenv('SAI');
@@ -163,11 +173,9 @@ class GoogleSpreadsheetsTest extends PHPUnit_Framework_TestCase {
 
         $key = $this->storage('key');
 
-        $data = $service->findWorksheets($key);
+        $wid = $this->findFirstWorksheet($key);
 
-        $w = $data[0]['id'];
-
-        $service->deleteWorksheet($key, $w);
+        $service->deleteWorksheet($key, $wid);
 
         $data = $service->findWorksheets($key);
 
@@ -180,20 +188,57 @@ class GoogleSpreadsheetsTest extends PHPUnit_Framework_TestCase {
 
         $key = $this->storage('key');
 
-        $list = $service->findWorksheets($key);
+        $wid = $this->findFirstWorksheet($key);
 
-        $w = $list[0]['id'];
-
-        $olddata = $service->getWorksheetData($key, $w);
+        $olddata = $service->getWorksheetData($key, $wid);
 
         $newname = 'changednameowforksheet ąśżźćęóńł';
 
-        $service->renameWorksheet($key, $w, $newname);
+        $service->renameWorksheet($key, $wid, $newname);
 
-        $newdata = $service->getWorksheetData($key, $w);
+        $newdata = $service->getWorksheetData($key, $wid);
 
         $this->assertNotEquals($olddata['title']['$t'], $newdata['title']['$t'], 'Names of worksheet are equal, but they should not be');
 
         $this->assertEquals($newname, $newdata['title']['$t'], 'Name of worksheet has not changed');
+    }
+
+    /**
+     * https://developers.google.com/google-apps/spreadsheets/data#update_multiple_cells_with_a_batch_request
+     */
+    public function testUpdateByBatch() {
+        // https://developers.google.com/google-apps/spreadsheets/data#update_multiple_cells_with_a_batch_request
+
+        $service = $this->_getService();
+
+        $key = $this->storage('key');
+
+        $wid = $this->findFirstWorksheet($key);
+
+
+        $service->update($key, $wid, array(
+            'D3' => '1',
+            'D4' => '2',
+            'D5' => '=SUM(D3:D4)'
+        ));
+
+    }
+    /**
+     * https://developers.google.com/google-apps/spreadsheets/data#retrieve_a_cell-based_feed
+     */
+    public function testGetCellsData() {
+
+        $service = $this->_getService();
+
+        $key = $this->storage('key');
+
+        $wid = $this->findFirstWorksheet($key);
+
+        $data = $service->getCellsData($key, $wid);
+
+        // ..................
+    }
+    public function testGetSpecificRowsAndCollumns() {
+        // https://developers.google.com/google-apps/spreadsheets/data#fetch_specific_rows_or_columns
     }
 }
