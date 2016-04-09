@@ -215,7 +215,6 @@ class GoogleSpreadsheetsTest extends PHPUnit_Framework_TestCase {
 
         $wid = $this->findFirstWorksheet($key);
 
-
         $service->update($key, $wid, array(
             'D3' => '1',
             'D4' => '2',

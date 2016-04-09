@@ -114,7 +114,7 @@ class GoogleSpreadsheets {
         /* @var $httpRequest Google_Http_Request */
         $httpRequest = $this->client->getIo()->makeRequest($request);
 
-        if (!in_array(($code = $httpRequest->getResponseHttpCode()), [200, 201])) {
+        if (!in_array(($code = $httpRequest->getResponseHttpCode()), array(200, 201))) {
             throw new Exception("Wrong status code: ".$code. " response: ".json_encode($httpRequest->getResponseBody(), true));
         }
 
@@ -141,10 +141,10 @@ class GoogleSpreadsheets {
         $ret = array();
 
         foreach ($data['feed']['entry'] as $k) {
-            $ret[] = [
+            $ret[] = array(
                 'key' => preg_replace('#^.*?/([^/]+)$#i', '$1', $k['id']['$t']),
                 'title' => $k['title']['$t']
-            ];
+            );
         }
 
         return $ret;
@@ -152,7 +152,7 @@ class GoogleSpreadsheets {
     public function findByRegexpName($regexp) {
         $list = $this->findFiles();
 
-        $ret = [];
+        $ret = array();
 
         die(print_r($list));
 
@@ -175,10 +175,10 @@ class GoogleSpreadsheets {
         $ret = array();
 
         foreach ($data['feed']['entry'] as $k) {
-            $ret[] = [
+            $ret[] = array(
                 'title' => $k['title']['$t'],
                 'id' => preg_replace('#^.*?/([^/]+)$#i', '$1', $k['id']['$t']),
-            ];
+            );
         }
 
         if ($rawResponse) {
@@ -199,9 +199,9 @@ class GoogleSpreadsheets {
 xml
 ;
 
-        return $this->api("/feeds/worksheets/$key/private/full", 'post', $xml, [
+        return $this->api("/feeds/worksheets/$key/private/full", 'post', $xml, array(
             "Content-Type" => "application/atom+xml"
-        ]);
+        ));
     }
 
     /**
@@ -227,9 +227,9 @@ xml
 </entry>
 xml
         ;
-        $this->api($edit, 'put', $xml, [
+        $this->api($edit, 'put', $xml, array(
             "Content-Type" => "application/atom+xml"
-        ]);
+        ));
 
         return $this;
     }
@@ -275,14 +275,14 @@ xml;
 
         $xml .= '</feed>';
 
-        $data = $this->api("/feeds/cells/$key/$wid/private/full/batch", 'post', $xml, [
+        $data = $this->api("/feeds/cells/$key/$wid/private/full/batch", 'post', $xml, array(
             "Content-Type" => "application/atom+xml",
 
             // http://stackoverflow.com/a/24128641
             // http://stackoverflow.com/a/23465333
             // g(Updating cell in Google Spreadsheets returns error “Missing resource version ID” / “The remote server returned an error: (400) Bad Request.”)
             "If-Match"=> "*"
-        ]);
+        ));
 
 //        die(print_r($data));
     }
