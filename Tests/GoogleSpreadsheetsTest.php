@@ -7,6 +7,7 @@ use Google_Service_Drive_DriveFile;
 use Google_Service_Drive;
 use Google_Service_Drive_ParentReference;
 use Exception;
+use Stopsopa\GoogleSpreadsheets\Lib\UtilArray;
 
 class GoogleSpreadsheetsTest extends PHPUnit_Framework_TestCase {
     /**
@@ -190,13 +191,13 @@ class GoogleSpreadsheetsTest extends PHPUnit_Framework_TestCase {
 
         $wid = $this->findFirstWorksheet($key);
 
-        $olddata = $service->getWorksheetData($key, $wid);
+        $olddata = $service->getWorksheetMetadata($key, $wid);
 
         $newname = 'changednameowforksheet ąśżźćęóńł';
 
         $service->renameWorksheet($key, $wid, $newname);
 
-        $newdata = $service->getWorksheetData($key, $wid);
+        $newdata = $service->getWorksheetMetadata($key, $wid);
 
         $this->assertNotEquals($olddata['title']['$t'], $newdata['title']['$t'], 'Names of worksheet are equal, but they should not be');
 
@@ -220,12 +221,8 @@ class GoogleSpreadsheetsTest extends PHPUnit_Framework_TestCase {
             'D4' => '2',
             'D5' => '=SUM(D3:D4)'
         ));
-
     }
-    /**
-     * https://developers.google.com/google-apps/spreadsheets/data#retrieve_a_cell-based_feed
-     */
-    public function testGetCellsData() {
+    public function testValesOfD5() {
 
         $service = $this->_getService();
 
@@ -233,11 +230,91 @@ class GoogleSpreadsheetsTest extends PHPUnit_Framework_TestCase {
 
         $wid = $this->findFirstWorksheet($key);
 
-        $data = $service->getCellsData($key, $wid);
+        $result = $service->findWorksheetData($key, $wid);
 
-        // ..................
+        $expected = json_decode(<<<end
+[
+  {
+    "a1": "D3",
+    "col": "4",
+    "inputValue": "1",
+    "numericValue": "1.0",
+    "row": "3",
+    "val": "1"
+  },
+  {
+    "a1": "D4",
+    "col": "4",
+    "inputValue": "2",
+    "numericValue": "2.0",
+    "row": "4",
+    "val": "2"
+  },
+  {
+    "a1": "D5",
+    "col": "4",
+    "inputValue": "=SUM(R[-2]C[0]:R[-1]C[0])",
+    "numericValue": "3.0",
+    "row": "5",
+    "val": "3.0"
+  }
+]
+end
+, true);
+
+        UtilArray::sortRecursive($result);
+        $result = json_encode($result);
+
+        UtilArray::sortRecursive($expected);
+        $expected = json_encode($expected);
+
+        $this->assertSame($result, $expected, "Written data are not the same as readed");
+    }
+    public function testFindFirstFreeRowForData() {
+
+        $service = $this->_getService();
+
+        $key = $this->storage('key');
+
+        $wid = $this->findFirstWorksheet($key);
+
+        $last = $service->findFirstFreeRowForData($key, $wid);
+
+        $this->assertSame($last, 6, "Ostatni wiersz nie jest prawidłowy");
     }
     public function testGetSpecificRowsAndCollumns() {
-        // https://developers.google.com/google-apps/spreadsheets/data#fetch_specific_rows_or_columns
+
+        $service = $this->_getService();
+
+        $key = $this->storage('key');
+
+        $wid = $this->findFirstWorksheet($key);
+
+        $result = $service->findWorksheetData($key, $wid, false, array(
+            'max-col' => 4,
+            'max-row' => 3
+        ));
+
+        $expected = json_decode(<<<end
+[
+  {
+    "a1": "D3",
+    "col": "4",
+    "inputValue": "1",
+    "numericValue": "1.0",
+    "row": "3",
+    "val": "1"
+  }
+]
+end
+, true);
+
+        UtilArray::sortRecursive($result);
+        $result = json_encode($result);
+
+        UtilArray::sortRecursive($expected);
+        $expected = json_encode($expected);
+
+        $this->assertSame($result, $expected, "Getting data by ranges doesn't work");
     }
 }

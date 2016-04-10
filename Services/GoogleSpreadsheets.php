@@ -14,6 +14,7 @@ use Stopsopa\GoogleSpreadsheets\Utils\CellConverter;
  *  https://developers.google.com/api-client-library/php/guide/aaa_overview
  *  https://developers.google.com/google-apps/spreadsheets/worksheets#create_a_spreadsheet
  *  https://developers.google.com/drive/v2/reference/files/insert
+ *  https://developers.google.com/gdata/docs/1.0/reference
  */
 class GoogleSpreadsheets {
     protected $scopes;
@@ -21,6 +22,7 @@ class GoogleSpreadsheets {
      * @var Google_Client
      */
     protected $client;
+    protected $endpoint = 'https://spreadsheets.google.com';
     const USER_AGENT = ' google-api-php-client/1.0.6-beta';
     public function __construct($scopes = null)
     {
@@ -79,7 +81,13 @@ class GoogleSpreadsheets {
     public function api($feedurl, $method = 'GET', $data = '', $headers = array(), $returnJson = true) {
 
         if ($returnJson) {
-            $feedurl .= '?alt=json';
+            if (strpos($feedurl, "?") === false) {
+                $feedurl .= '?';
+            }
+            else {
+                $feedurl .= '&';
+            }
+            $feedurl .= 'alt=json';
         }
 
         $this->_isInitializationCheck();
@@ -89,7 +97,7 @@ class GoogleSpreadsheets {
         }
 
         if (!preg_match('#^https?://#', $feedurl)) {
-            $feedurl = "https://spreadsheets.google.com$feedurl";
+            $feedurl = $this->endpoint.$feedurl;
         }
 
         $request = new Google_Http_Request($feedurl);
@@ -149,16 +157,7 @@ class GoogleSpreadsheets {
 
         return $ret;
     }
-    public function findByRegexpName($regexp) {
-        $list = $this->findFiles();
-
-        $ret = array();
-
-        die(print_r($list));
-
-        return $ret;
-    }
-    public function getWorksheetData($key, $wid) {
+    public function getWorksheetMetadata($key, $wid) {
 
         $data = $this->findWorksheets($key, true);
 
@@ -197,7 +196,7 @@ class GoogleSpreadsheets {
   <gs:colCount>$cells</gs:colCount>
 </entry>
 xml
-;
+        ;
 
         return $this->api("/feeds/worksheets/$key/private/full", 'post', $xml, array(
             "Content-Type" => "application/atom+xml"
@@ -215,7 +214,7 @@ xml
      */
     public function renameWorksheet($key, $wid, $title) {
 
-        $list = $this->getWorksheetData($key, $wid);
+        $list = $this->getWorksheetMetadata($key, $wid);
 
         $edit = $list['link'][5]['href'];
 
@@ -233,15 +232,6 @@ xml
 
         return $this;
     }
-
-    /**
-     * https://developers.google.com/google-apps/spreadsheets/data#retrieve_a_cell-based_feed
-     */
-    public function getCellsData($key, $wid) {
-        $data = $this->api("/feeds/cells/$key/$wid/private/full");
-
-        die(print_r($data));
-    }
     /**
      * https://developers.google.com/google-apps/spreadsheets/data#retrieve_a_list-based_feed
      */
@@ -251,7 +241,7 @@ xml
 <feed xmlns="http://www.w3.org/2005/Atom"
       xmlns:batch="http://schemas.google.com/gdata/batch"
       xmlns:gs="http://schemas.google.com/spreadsheets/2006">
-  <id>https://spreadsheets.google.com/feeds/cells/$key/$wid/private/full</id>
+  <id>{$this->endpoint}/feeds/cells/$key/$wid/private/full</id>
 xml;
 
 
@@ -265,8 +255,8 @@ xml;
   <entry>
     <batch:id>$c</batch:id>
     <batch:operation type="update"/>
-    <id>https://spreadsheets.google.com/feeds/cells/$key/$wid/private/full/$c</id>
-    <link rel="edit" type="application/atom+xml" href="https://spreadsheets.google.com/feeds/cells/$key/$wid/private/full/$c"/>
+    <id>{$this->endpoint}/feeds/cells/$key/$wid/private/full/$c</id>
+    <link rel="edit" type="application/atom+xml" href="{$this->endpoint}/feeds/cells/$key/$wid/private/full/$c"/>
     <gs:cell row="{$rc['r']}" col="{$rc['c']}" inputValue="$d"/>
   </entry>
 xml;
@@ -284,6 +274,74 @@ xml;
             "If-Match"=> "*"
         ));
 
-//        die(print_r($data));
+        return $this;
+    }
+
+    /**
+     * @param $key
+     * @param $wid
+     * @param bool $rawResponse
+     * @param array $filter
+     *   https://developers.google.com/google-apps/spreadsheets/data#fetch_specific_rows_or_columns
+     *   g(Fetch specific rows or columns The Sheets API allows users to fetch specific rows or columns from a worksheet by providing additional URL parameters when making a request.)
+     *   eq:
+     *       [
+     *         "min-row" : 2,
+     *         "max-row" : 6,
+     *         "min-col" : 2,
+     *         "max-col" : 8
+     *       ]
+     *
+     * @return array|mixed|string
+     * @throws Exception
+     */
+    public function findWorksheetData($key, $wid, $rawResponse = false, $filter = array()) {
+
+        if ($filter) {
+            $tmp = array();
+            foreach ($filter as $name => $value) {
+                $tmp[] = "$name=$value";
+            }
+            $filter = '?'.implode('&', $tmp);
+        }
+        else {
+            $filter = '';
+        }
+
+        $data = $this->api("/feeds/cells/$key/$wid/private/full$filter");
+
+        if ($rawResponse) {
+            return $data;
+        }
+
+        return array_map(function ($cell) {
+
+            $row = array(
+                'col'           => $cell['gs$cell']['col'],
+                'row'           => $cell['gs$cell']['row'],
+                'inputValue'    => $cell['gs$cell']['inputValue'],
+                'numericValue'  => isset($cell['gs$cell']['numericValue']) ? $cell['gs$cell']['numericValue'] : null,
+                'a1'            => $cell['title']['$t']
+            );
+
+            $row['val'] = (substr($row['inputValue'], 0, 1) === '=') ? $row['numericValue'] : $row['inputValue'] ;
+
+            return $row;
+
+        }, $data['feed']['entry']);
+    }
+    public function findFirstFreeRowForData($key, $wid) {
+
+        $data = $this->findWorksheetData($key, $wid);
+
+        $last = 0;
+
+        foreach ($data as $row) {
+            if ($row['row'] > $last) {
+                $last = $row['row'];
+            }
+        }
+
+        return $last + 1;
     }
 }
