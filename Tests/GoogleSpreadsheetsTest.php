@@ -2,6 +2,7 @@
 
 namespace Stopsopa\GoogleSpreadsheets\Services;
 use PHPUnit_Framework_TestCase;
+use Stopsopa\GoogleSpreadsheets\Lib\SimpleXMLElementHelper;
 use Stopsopa\GoogleSpreadsheets\Services\GoogleSpreadsheets;
 use Google_Service_Drive_DriveFile;
 use Google_Service_Drive;
@@ -158,11 +159,11 @@ class GoogleSpreadsheetsTest extends PHPUnit_Framework_TestCase {
 
         $this->assertTrue(strlen($key) > 0, "No file key in storage");
 
-        $service->createWorkSheet($key, 'First');
+        $service->createWorkSheet($key, 'First', 20, 20);
 
-        $service->createWorkSheet($key, 'Second');
+        $service->createWorkSheet($key, 'Second', 20, 20);
 
-        $service->createWorkSheet($key, 'Third');
+        $service->createWorkSheet($key, 'Third', 20, 20);
 
         $data = $service->findWorksheets($key);
 
@@ -195,7 +196,7 @@ class GoogleSpreadsheetsTest extends PHPUnit_Framework_TestCase {
 
         $newname = 'changednameowforksheet ąśżźćęóńł';
 
-        $service->renameWorksheet($key, $wid, $newname);
+        $service->updateWorksheetMetadata($key, $wid, $newname);
 
         $newdata = $service->getWorksheetMetadata($key, $wid);
 
@@ -236,36 +237,36 @@ class GoogleSpreadsheetsTest extends PHPUnit_Framework_TestCase {
 [
   {
     "a1": "D3",
-    "col": "4",
+    "col": 4,
     "inputValue": "1",
     "numericValue": "1.0",
-    "row": "3",
+    "row": 3,
     "val": "1"
   },
   {
     "a1": "D4",
-    "col": "4",
+    "col": 4,
     "inputValue": "2",
     "numericValue": "2.0",
-    "row": "4",
+    "row": 4,
     "val": "2"
   },
   {
     "a1": "D5",
-    "col": "4",
+    "col": 4,
     "inputValue": "=SUM(R[-2]C[0]:R[-1]C[0])",
     "numericValue": "3.0",
-    "row": "5",
+    "row": 5,
     "val": "3.0"
   }
 ]
 end
 , true);
 
-        UtilArray::sortRecursive($result);
+        UtilArray::sortKeysRecursive($result);
         $result = json_encode($result);
 
-        UtilArray::sortRecursive($expected);
+        UtilArray::sortKeysRecursive($expected);
         $expected = json_encode($expected);
 
         $this->assertSame($result, $expected, "Written data are not the same as readed");
@@ -299,22 +300,70 @@ end
 [
   {
     "a1": "D3",
-    "col": "4",
+    "col": 4,
     "inputValue": "1",
     "numericValue": "1.0",
-    "row": "3",
+    "row": 3,
     "val": "1"
   }
 ]
 end
 , true);
 
-        UtilArray::sortRecursive($result);
+        UtilArray::sortKeysRecursive($result);
         $result = json_encode($result);
 
-        UtilArray::sortRecursive($expected);
+        UtilArray::sortKeysRecursive($expected);
         $expected = json_encode($expected);
 
         $this->assertSame($result, $expected, "Getting data by ranges doesn't work");
+    }
+    public function testChangeSizeOfWorksheet() {
+
+        $service = $this->_getService();
+
+        $key = $this->storage('key');
+
+        $wid = $this->findFirstWorksheet($key);
+
+        $rows = 40;
+
+        $cols = 41;
+
+        $service->updateWorksheetMetadata($key, $wid, null, $rows, $cols);
+
+        $data = $service->getWorksheetMetadata($key, $wid);
+
+        $rowsr = $data['gs$rowCount']['$t'];
+
+        $colsr = $data['gs$colCount']['$t'];
+
+        $this->assertEquals($rowsr, $rows, "Number of expected rows ($rows) doesn't match to real number of rows ($rowsr)");
+
+        $this->assertEquals($colsr, $cols, "Number of expected columns ($cols) doesn't match to real number of columns ($colsr)");
+    }
+    public function testWriteOutOfRange() {
+
+        $service = $this->_getService();
+
+        $key = $this->storage('key');
+
+        $wid = $this->findFirstWorksheet($key);
+
+        $xml = $service->update($key, $wid, array(
+            'R22C220' => 'outofrange'
+        ));
+
+
+
+//        $data = $service->findWorksheetData($key, $wid, false, array(
+//            'min-col' => 19,
+//            'max-col' => 20,
+//            'min-row' => 19,
+//            'max-row' => 20
+//        ));
+//
+//        print_r(__LINE__);
+//        print_r($xml);
     }
 }

@@ -5,6 +5,7 @@ use Exception;
 use Google_Http_Request;
 use Google_Client;
 use Google_Auth_AssertionCredentials;
+use Stopsopa\GoogleSpreadsheets\Lib\SimpleXMLElementHelper;
 use Stopsopa\GoogleSpreadsheets\Utils\CellConverter;
 
 /**
@@ -187,13 +188,13 @@ class GoogleSpreadsheets {
 
         return $ret;
     }
-    public function createWorkSheet($key, $title, $rows = 50, $cells = 10) {
+    public function createWorkSheet($key, $title, $rows = 50, $cols = 10) {
 
         $xml = <<<xml
 <entry xmlns="http://www.w3.org/2005/Atom" xmlns:gs="http://schemas.google.com/spreadsheets/2006">
   <title>$title</title>
   <gs:rowCount>$rows</gs:rowCount>
-  <gs:colCount>$cells</gs:colCount>
+  <gs:colCount>$cols</gs:colCount>
 </entry>
 xml
         ;
@@ -212,17 +213,29 @@ xml
     /**
      * https://developers.google.com/google-apps/spreadsheets/worksheets#modify_a_worksheets_title_and_size
      */
-    public function renameWorksheet($key, $wid, $title) {
+    public function updateWorksheetMetadata($key, $wid, $title = null, $rows = null, $cols = null) {
 
         $list = $this->getWorksheetMetadata($key, $wid);
+
+        if ($title === null) {
+            $title = $list['content']['$t'];
+        }
+
+        if ($rows === null) {
+            $rows = $list['gs$rowCount']['$t'];
+        }
+
+        if ($cols === null) {
+            $cols = $list['gs$colCount']['$t'];
+        }
 
         $edit = $list['link'][5]['href'];
 
         $xml = <<<xml
 <entry xmlns="http://www.w3.org/2005/Atom" xmlns:gs="http://schemas.google.com/spreadsheets/2006">
     <title>$title</title>
-    <gs:colCount>{$list['gs$colCount']['$t']}</gs:colCount>
-    <gs:rowCount>{$list['gs$rowCount']['$t']}</gs:rowCount>
+    <gs:colCount>$cols</gs:colCount>
+    <gs:rowCount>$rows</gs:rowCount>
 </entry>
 xml
         ;
@@ -265,7 +278,7 @@ xml;
 
         $xml .= '</feed>';
 
-        $data = $this->api("/feeds/cells/$key/$wid/private/full/batch", 'post', $xml, array(
+        $xml = $this->api("/feeds/cells/$key/$wid/private/full/batch", 'post', $xml, array(
             "Content-Type" => "application/atom+xml",
 
             // http://stackoverflow.com/a/24128641
@@ -274,7 +287,61 @@ xml;
             "If-Match"=> "*"
         ));
 
-        return $this;
+        $xml = SimpleXMLElementHelper::parseString($xml);
+
+        $xml = $xml['xml'];
+
+        $data = array();
+
+        $firstError = 200;
+
+        foreach ($xml->children as &$a) {
+            if ($a->name === 'atom:entry') {
+
+                $x = &$a->children;
+
+                $title      = $this->_findNode($x, 'atom:title');
+                $content    = $this->_findNode($x, 'atom:content');
+                $status     = $this->_findNode($x, 'batch:status');
+                $id         = $this->_findNode($x, 'batch:id');
+
+                // if error then there is no gs:cell node
+                $cell       = $this->_findNode($x, 'gs:cell');
+
+                $code       = (int)$status->attributes['code'];
+
+                if ($firstError === 200 && $code !== 200) {
+                    $firstError = $code;
+                }
+
+                $row = array(
+                    'a1'            => $title->text,
+                    'status'        => $code,
+                    'reason'        => $status->attributes['reason']
+                );
+
+                if ($cell) {
+                    $row['col']             = (int)$cell->attributes['col'];
+                    $row['row']             = (int)$cell->attributes['row'];
+                    $row['numericValue']    = isset($cell->attributes['numericValue']) ? $cell->attributes['numericValue'] : null;
+                    $row['inputValue']      = $content->text;
+                }
+
+                $data[$id->text] = $row;
+            }
+        }
+
+        return array(
+            'status' => $firstError,
+            'data' => $data
+        );
+    }
+    protected function _findNode($collection, $name) {
+        foreach ($collection as &$c) {
+            if ($c->name === $name) {
+                return $c;
+            }
+        }
     }
 
     /**
@@ -317,8 +384,8 @@ xml;
         return array_map(function ($cell) {
 
             $row = array(
-                'col'           => $cell['gs$cell']['col'],
-                'row'           => $cell['gs$cell']['row'],
+                'col'           => (int)$cell['gs$cell']['col'],
+                'row'           => (int)$cell['gs$cell']['row'],
                 'inputValue'    => $cell['gs$cell']['inputValue'],
                 'numericValue'  => isset($cell['gs$cell']['numericValue']) ? $cell['gs$cell']['numericValue'] : null,
                 'a1'            => $cell['title']['$t']
@@ -343,5 +410,8 @@ xml;
         }
 
         return $last + 1;
+    }
+    protected function _dump($data) {
+        fwrite(STDOUT, print_r($data, true));
     }
 }
