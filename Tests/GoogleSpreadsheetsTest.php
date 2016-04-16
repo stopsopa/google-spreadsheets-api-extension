@@ -269,7 +269,7 @@ end
         $expected = UtilArray::sortKeysRecursive($expected);
         $expected = json_encode($expected);
 
-        $this->assertSame($result, $expected, "Written data are not the same as readed");
+        $this->assertSame($expected, $result, "Written data are not the same as readed");
     }
     public function testFindFirstFreeRowForData() {
 
@@ -316,7 +316,7 @@ end
         $expected = UtilArray::sortKeysRecursive($expected);
         $expected = json_encode($expected);
 
-        $this->assertSame($result, $expected, "Getting data by ranges doesn't work");
+        $this->assertSame($expected, $result, "Getting data by ranges doesn't work");
     }
     public function testChangeSizeOfWorksheet() {
 
@@ -467,7 +467,7 @@ end
         $expected = UtilArray::sortKeysRecursive($expected);
         $expected = json_encode($expected);
 
-        $this->assertSame($result, $expected, "Getting data by ranges doesn't work");
+        $this->assertSame($expected, $result, "Getting data by ranges doesn't work");
     }
     public function testListGet() {
 
@@ -586,7 +586,7 @@ end
         $expected = UtilArray::sortKeysRecursive($expected);
         $expected = json_encode($expected);
 
-        $this->assertSame($result, $expected, "Getting data by ranges doesn't work");
+        $this->assertSame($expected, $result, "Getting data by ranges doesn't work");
 
         $result     = $l->get(3);
 
@@ -647,7 +647,7 @@ end
         $expected = UtilArray::sortKeysRecursive($expected);
         $expected = json_encode($expected);
 
-        $this->assertSame($result, $expected, "Getting data by ranges doesn't work");
+        $this->assertSame($expected, $result, "Getting data by ranges doesn't work");
 
         $result     = $l->get(4);
 
