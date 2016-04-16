@@ -404,7 +404,7 @@ end
             "Height"    => 'heighttest'
         ));
 
-        $expected = json_decode(<<<end
+        $expected = json_decode(str_replace("\r\n", "",<<<end
 {
   "data": {
     "R3C1": {
@@ -456,7 +456,7 @@ end
   "status": 200
 }
 end
-, true);
+), true);
 
         UtilArray::sortKeysRecursive($result);
         $result = json_encode($result);
@@ -478,10 +478,10 @@ end
 
         $result = $l->get();
 
-        $expected = json_decode(<<<end
+        $expected = json_decode(str_replace("\r\n", "",<<<end
 {"2":{"Name":{"col":1,"row":2,"inputValue":"John","numericValue":null,"a1":"A2","val":"John"},"Surname":{"col":2,"row":2,"inputValue":"Smith","numericValue":null,"a1":"B2","val":"Smith"},"Age":{"col":3,"row":2,"inputValue":"31","numericValue":"31.0","a1":"C2","val":"31"},"Weight":{"col":4,"row":2,"inputValue":"80","numericValue":"80.0","a1":"D2","val":"80"},"Height":{"col":5,"row":2,"inputValue":"180","numericValue":"180.0","a1":"E2","val":"180"}},"3":{"Name":{"col":1,"row":3,"inputValue":"nametest","numericValue":null,"a1":"A3","val":"nametest"},"Surname":{"col":2,"row":3,"inputValue":"surnametest","numericValue":null,"a1":"B3","val":"surnametest"},"Age":{"col":3,"row":3,"inputValue":"agetest","numericValue":null,"a1":"C3","val":"agetest"},"Weight":{"col":4,"row":3,"inputValue":"weighttest","numericValue":null,"a1":"D3","val":"weighttest"},"Height":{"col":5,"row":3,"inputValue":"heighttest","numericValue":null,"a1":"E3","val":"heighttest"}}}
 end
-, true);
+        ), true);
 
         UtilArray::sortKeysRecursive($result);
         $result = json_encode($result);
@@ -493,10 +493,10 @@ end
 
         $result     = $l->get(3);
 
-        $expected = json_decode(<<<end
+        $expected = json_decode(str_replace("\r\n", "",<<<end
 {"3":{"Name":{"col":1,"row":3,"inputValue":"nametest","numericValue":null,"a1":"A3","val":"nametest"},"Surname":{"col":2,"row":3,"inputValue":"surnametest","numericValue":null,"a1":"B3","val":"surnametest"},"Age":{"col":3,"row":3,"inputValue":"agetest","numericValue":null,"a1":"C3","val":"agetest"},"Weight":{"col":4,"row":3,"inputValue":"weighttest","numericValue":null,"a1":"D3","val":"weighttest"},"Height":{"col":5,"row":3,"inputValue":"heighttest","numericValue":null,"a1":"E3","val":"heighttest"}}}
 end
-, true);
+        ), true);
 
         UtilArray::sortKeysRecursive($result);
         $result = json_encode($result);
