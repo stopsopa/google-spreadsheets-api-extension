@@ -73,15 +73,17 @@ class SimpleXMLElementHelper {
      */
     public static function parseString($xml, $force = false, $addNative = false, $getRidOfNamespaces = null) {
 
-//        if (!is_callable($getRidOfNamespaces)) {
-//            $getRidOfNamespaces = function ($xml) {
-//                return str_replace('xmlns=', 'ns=', str_replace('xmlns:', 'ns:', $xml));
-//            };
-//        }
+        if (!is_callable($getRidOfNamespaces)) {
+            $getRidOfNamespaces = function ($xml) {
+                return str_replace('xmlns=', 'ns=', str_replace('xmlns:', 'ns:', $xml));
+            };
+        }
 
-        $xml = str_replace('xmlns=', 'ns=', str_replace('xmlns:', 'ns:', $xml));
+        print_r($xml);
 
-//        $xml = call_user_func($getRidOfNamespaces, $xml);
+        $xml = call_user_func($getRidOfNamespaces, $xml);
+
+        print_r($xml);
 
         $libxml_previous_state = libxml_use_internal_errors(true);
 
