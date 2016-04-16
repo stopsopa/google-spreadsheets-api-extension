@@ -31,11 +31,11 @@ class SimpleXMLElementHelper {
             $obj->native = $xml;
         }
 
-        foreach($xml->attributes() as $k => $v) {
+        foreach($xml->attributes(null, true) as $k => $v) {
             $attributes[$k]  = (string)$v;
         }
 
-        foreach($xml->children() as $k => $v) {
+        foreach($xml->children(null, true) as $k => $v) {
             $children[] = static::normalize($v, $force);
         }
 
@@ -90,7 +90,7 @@ class SimpleXMLElementHelper {
         $libxml_previous_state = libxml_use_internal_errors(true);
 
         /* @var $xml SimpleXMLElement */
-        $xml = new SimpleXMLElement($xml, 0, $data_is_url = false, $ns = "", $is_prefix = false);
+        $xml = new SimpleXMLElement($xml, 0, $data_is_url = false, $ns = null, $is_prefix = true);
 
         $errors = libxml_get_errors();
 
@@ -100,7 +100,7 @@ class SimpleXMLElementHelper {
 
         return array(
             'xml'       => static::normalize($xml, $force, $addNative),
-            'errors'    => $errors ?: array()
+//            'errors'    => $errors ?: array()
         );
     }
 }

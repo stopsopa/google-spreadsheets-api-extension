@@ -294,6 +294,10 @@ xml;
 
         $xml = SimpleXMLElementHelper::parseString($xml);
 
+
+        print_r($xml);
+        die('end');
+
         $xml = $xml['xml'];
 
         $data = array();
