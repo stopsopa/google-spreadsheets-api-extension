@@ -21,8 +21,8 @@ class UtilArray
                 ksort($data, $param ?: SORT_REGULAR);
             }
 
-            foreach ($data as &$d) {
-                $d = static::sortKeysRecursive($d, $param, $reverse);
+            foreach ($data as $key => $d) {
+                $data[$key] = static::sortKeysRecursive($d, $param, $reverse);
             }
         }
 
