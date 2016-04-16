@@ -79,16 +79,18 @@ class SimpleXMLElementHelper {
             };
         }
 
-        print_r($xml);
+//        print_r($xml);
 
         $xml = call_user_func($getRidOfNamespaces, $xml);
 
-        print_r($xml);
+//        print_r($xml);
+
+        libxml_disable_entity_loader(true);
 
         $libxml_previous_state = libxml_use_internal_errors(true);
 
         /* @var $xml SimpleXMLElement */
-        $xml = new SimpleXMLElement($xml, LIBXML_ERR_NONE);
+        $xml = new SimpleXMLElement($xml, 0, $data_is_url = false, $ns = "", $is_prefix = false);
 
         $errors = libxml_get_errors();
 
