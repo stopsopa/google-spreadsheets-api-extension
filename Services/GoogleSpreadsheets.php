@@ -16,6 +16,9 @@ use Stopsopa\GoogleSpreadsheets\Utils\CellConverter;
  *  https://developers.google.com/google-apps/spreadsheets/worksheets#create_a_spreadsheet
  *  https://developers.google.com/drive/v2/reference/files/insert
  *  https://developers.google.com/gdata/docs/1.0/reference
+ *
+ *  also
+ *  http://blog.evantahler.com/blog/curl-your-way-into-the-google-analytics-api.html
  */
 class GoogleSpreadsheets {
     protected $scopes;
@@ -124,6 +127,7 @@ class GoogleSpreadsheets {
         $httpRequest = $this->client->getIo()->makeRequest($request);
 
         if (!in_array(($code = $httpRequest->getResponseHttpCode()), array(200, 201))) {
+            print_r($httpRequest);
             throw new Exception("Wrong status code: ".$code. " response: ".json_encode($httpRequest->getResponseBody(), true));
         }
 
@@ -239,6 +243,7 @@ xml
 </entry>
 xml
         ;
+
         $this->api($edit, 'put', $xml, array(
             "Content-Type" => "application/atom+xml"
         ));
@@ -332,8 +337,8 @@ xml;
         }
 
         return array(
-            'status' => $firstError,
-            'data' => $data
+            'status'    => $firstError,
+            'data'      => $data
         );
     }
     protected function _findNode($collection, $name) {
@@ -353,10 +358,10 @@ xml;
      *   g(Fetch specific rows or columns The Sheets API allows users to fetch specific rows or columns from a worksheet by providing additional URL parameters when making a request.)
      *   eq:
      *       [
-     *         "min-row" : 2,
-     *         "max-row" : 6,
-     *         "min-col" : 2,
-     *         "max-col" : 8
+     *         "min-row" : 2, // inclusive
+     *         "max-row" : 6, // inclusive
+     *         "min-col" : 2, // inclusive
+     *         "max-col" : 8  // inclusive
      *       ]
      *
      * @return array|mixed|string
@@ -381,21 +386,26 @@ xml;
             return $data;
         }
 
-        return array_map(function ($cell) {
+        $tmp = array();
 
-            $row = array(
-                'col'           => (int)$cell['gs$cell']['col'],
-                'row'           => (int)$cell['gs$cell']['row'],
-                'inputValue'    => $cell['gs$cell']['inputValue'],
-                'numericValue'  => isset($cell['gs$cell']['numericValue']) ? $cell['gs$cell']['numericValue'] : null,
-                'a1'            => $cell['title']['$t']
-            );
+        if (isset($data['feed']['entry'])) {
 
-            $row['val'] = (substr($row['inputValue'], 0, 1) === '=') ? $row['numericValue'] : $row['inputValue'] ;
+            foreach ($data['feed']['entry'] as $cell) {
+                $row = array(
+                    'col'           => (int)$cell['gs$cell']['col'],
+                    'row'           => (int)$cell['gs$cell']['row'],
+                    'inputValue'    => $cell['gs$cell']['inputValue'],
+                    'numericValue'  => isset($cell['gs$cell']['numericValue']) ? $cell['gs$cell']['numericValue'] : null,
+                    'a1'            => $cell['title']['$t']
+                );
 
-            return $row;
+                $row['val'] = (substr($row['inputValue'], 0, 1) === '=') ? $row['numericValue'] : $row['inputValue'] ;
 
-        }, $data['feed']['entry']);
+                $tmp["R{$row['row']}C{$row['col']}"] = $row;
+            }
+        }
+
+        return $tmp;
     }
     public function findFirstFreeRowForData($key, $wid) {
 
@@ -410,6 +420,121 @@ xml;
         }
 
         return $last + 1;
+    }
+    public function listGet($key, $wid, $rawResponse = false) {
+
+        $raw = $this->api("/feeds/list/$key/$wid/private/full");
+
+        if ($rawResponse) {
+            return $raw;
+        }
+
+        $data = array(
+            'title' => $raw['feed']['title']['$t'],
+            'totalResults' => (int)$raw['feed']['openSearch$totalResults']['$t'],
+            'startIndex' => (int)$raw['feed']['openSearch$startIndex']['$t'],
+        );
+
+        $list = array();
+
+        foreach ($raw['feed']['entry'] as &$d) {
+            $row = array(
+                'id' => preg_replace('#^.*?/([^/]+)$#', '$1', $d['id']['$t']),
+                'edit' => $d['link'][1]['href']
+            );
+
+            $dat = array();
+            foreach ($d as $key => $dd) {
+                if (strpos($key, 'gsx$') === 0) {
+                    $dat[substr($key, 4)] = $dd['$t'];
+                }
+            }
+
+            $row['data'] = $dat;
+
+            $list[] = $row;
+        }
+
+        $data['data'] = $list;
+
+        return $data;
+    }
+
+    /**
+     * @param $key
+     * @param $wid
+     * @return GoogleSpreadsheetsLines
+     */
+    public function getList($key, $wid) {
+        return new GoogleSpreadsheetsLines($this, $key, $wid);
+    }
+
+    /**
+     * This method doesn't work even if it is done acording the documentation:
+     *   https://developers.google.com/google-apps/spreadsheets/data#add_a_list_row
+     *   So i create Class to manipulate rows of worksheet
+     * @param $key
+     * @param $wid
+     * @param $data
+     */
+//    protected function listInsert($key, $wid, $data) {
+////    public function listInsert($key, $wid, $data) {
+//
+//        $xml = '<entry xmlns="http://www.w3.org/2005/Atom" xmlns:gsx="http://schemas.google.com/spreadsheets/2006/extended">'."\n";
+//
+//        foreach ($data as $col => $value) {
+////            $col = $this->_normalizeKey($col);
+//            $xml .= "    <gsx:$col><![CDATA[$value]]></gsx:$col>\n";
+//        }
+//
+//        $xml .= '</entry>';
+//
+//        // --------------- i try by pure curl ---- vvv
+////        if ($this->client->getAuth()->isAccessTokenExpired()) {
+////            $this->client->getAuth()->refreshTokenWithAssertion();
+////        }
+////
+////        $token = json_decode((string)$this->client->getAccessToken(), true)["access_token"];
+////
+////        $token = preg_replace('#^.*?\.\.(.*)$#', '$1', $token);
+//
+////            $headers = array(
+////                "Content-Type: application/atom+xml",
+////                "Authorization: Bearer " . $token,
+////    //            "Authorization: GoogleLogin auth=" . $token,
+////                "GData-Version: 3.0"
+////            );
+////
+////            $curl = curl_init();
+////            curl_setopt($curl, CURLOPT_URL, "https://spreadsheets.google.com/feeds/list/$key/$wid/private/full");
+////            curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
+////            curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+////            curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+////            curl_setopt($curl, CURLOPT_POST, true);
+////            curl_setopt($curl, CURLOPT_POSTFIELDS, $xml);
+////            $response = curl_exec($curl);
+////            $status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+////            curl_close($curl);
+////
+////            print_r($response);
+////            die(print_r($status));
+//        // unfortunately using curl still doesn't work, i think that documentation is out of date nom
+//        // --------------- i try by pure curl ---- ^^^
+//
+//
+//
+//
+////        print_r($xml);
+//
+//        $data = $this->api("/feeds/list/$key/$wid/private/full", 'post', $xml, array(
+//            "Content-Type" => "application/atom+xml",
+//            "GData-Version" => "3.0"
+//        ));
+//
+//        print_r($data);
+//    }
+    protected function _normalizeKey($key) {
+        return preg_replace('#\s+#', '', $key);
     }
     protected function _dump($data) {
         fwrite(STDOUT, print_r($data, true));

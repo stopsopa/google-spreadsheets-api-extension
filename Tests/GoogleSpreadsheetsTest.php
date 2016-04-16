@@ -234,8 +234,8 @@ class GoogleSpreadsheetsTest extends PHPUnit_Framework_TestCase {
         $result = $service->findWorksheetData($key, $wid);
 
         $expected = json_decode(<<<end
-[
-  {
+{
+  "R3C4": {
     "a1": "D3",
     "col": 4,
     "inputValue": "1",
@@ -243,7 +243,7 @@ class GoogleSpreadsheetsTest extends PHPUnit_Framework_TestCase {
     "row": 3,
     "val": "1"
   },
-  {
+  "R4C4": {
     "a1": "D4",
     "col": 4,
     "inputValue": "2",
@@ -251,7 +251,7 @@ class GoogleSpreadsheetsTest extends PHPUnit_Framework_TestCase {
     "row": 4,
     "val": "2"
   },
-  {
+  "R5C4": {
     "a1": "D5",
     "col": 4,
     "inputValue": "=SUM(R[-2]C[0]:R[-1]C[0])",
@@ -259,7 +259,7 @@ class GoogleSpreadsheetsTest extends PHPUnit_Framework_TestCase {
     "row": 5,
     "val": "3.0"
   }
-]
+}
 end
 , true);
 
@@ -297,8 +297,8 @@ end
         ));
 
         $expected = json_decode(<<<end
-[
-  {
+{
+  "R3C4" : {
     "a1": "D3",
     "col": 4,
     "inputValue": "1",
@@ -306,7 +306,7 @@ end
     "row": 3,
     "val": "1"
   }
-]
+}
 end
 , true);
 
@@ -354,16 +354,223 @@ end
             'R22C220' => 'outofrange'
         ));
 
-
-
-//        $data = $service->findWorksheetData($key, $wid, false, array(
-//            'min-col' => 19,
-//            'max-col' => 20,
-//            'min-row' => 19,
-//            'max-row' => 20
-//        ));
-//
-//        print_r(__LINE__);
-//        print_r($xml);
+        $this->assertEquals($xml['data']['R22C220']['status'], 400, "Status should be 400");
     }
+    public function testCreateList() {
+
+        $service = $this->_getService();
+
+        $key = $this->storage('key');
+
+        $wlist = $service->findWorksheets($key);
+
+        $list = $wlist[1]['id'];
+
+        $this->storage('list', $list);
+
+//            'F1' => "Łódź space" // in fetched result there will be no spaces, key will be 'Łódźspace'
+        $service->update($key, $list, array(
+            'A1' => "Name",
+            'B1' => "Surname",
+            'C1' => "Age",
+            'D1' => "Weight",
+            'E1' => "Height",
+        ));
+
+//            'F2' => "Coś"
+        $service->update($key, $list, array(
+            'A2' => "John",
+            'B2' => "Smith",
+            'C2' => "31",
+            'D2' => "80",
+            'E2' => "180",
+        ));
+    }
+    public function testListAdd() {
+
+        $service = $this->_getService();
+
+        $key = $this->storage('key');
+
+        $list = $this->storage('list');
+
+        $list = $service->getList($key, $list);
+
+        $result = $list->add(array(
+            "Name"      => 'nametest',
+            "Surname"   => 'surnametest',
+            "Age"       => 'agetest',
+            "Weight"    => 'weighttest',
+            "Height"    => 'heighttest'
+        ));
+
+        $expected = json_decode(<<<end
+{
+  "data": {
+    "R3C1": {
+      "a1": "A3",
+      "col": 1,
+      "inputValue": "nametest",
+      "numericValue": null,
+      "reason": "Success",
+      "row": 3,
+      "status": 200
+    },
+    "R3C2": {
+      "a1": "B3",
+      "col": 2,
+      "inputValue": "surnametest",
+      "numericValue": null,
+      "reason": "Success",
+      "row": 3,
+      "status": 200
+    },
+    "R3C3": {
+      "a1": "C3",
+      "col": 3,
+      "inputValue": "agetest",
+      "numericValue": null,
+      "reason": "Success",
+      "row": 3,
+      "status": 200
+    },
+    "R3C4": {
+      "a1": "D3",
+      "col": 4,
+      "inputValue": "weighttest",
+      "numericValue": null,
+      "reason": "Success",
+      "row": 3,
+      "status": 200
+    },
+    "R3C5": {
+      "a1": "E3",
+      "col": 5,
+      "inputValue": "heighttest",
+      "numericValue": null,
+      "reason": "Success",
+      "row": 3,
+      "status": 200
+    }
+  },
+  "status": 200
+}
+end
+, true);
+
+        UtilArray::sortKeysRecursive($result);
+        $result = json_encode($result);
+
+        UtilArray::sortKeysRecursive($expected);
+        $expected = json_encode($expected);
+
+        $this->assertSame($result, $expected, "Getting data by ranges doesn't work");
+    }
+    public function testListGet() {
+
+        $service = $this->_getService();
+
+        $key = $this->storage('key');
+
+        $list = $this->storage('list');
+
+        $l = $service->getList($key, $list);
+
+        $result = $l->get();
+
+        $expected = json_decode(<<<end
+{"2":{"Name":{"col":1,"row":2,"inputValue":"John","numericValue":null,"a1":"A2","val":"John"},"Surname":{"col":2,"row":2,"inputValue":"Smith","numericValue":null,"a1":"B2","val":"Smith"},"Age":{"col":3,"row":2,"inputValue":"31","numericValue":"31.0","a1":"C2","val":"31"},"Weight":{"col":4,"row":2,"inputValue":"80","numericValue":"80.0","a1":"D2","val":"80"},"Height":{"col":5,"row":2,"inputValue":"180","numericValue":"180.0","a1":"E2","val":"180"}},"3":{"Name":{"col":1,"row":3,"inputValue":"nametest","numericValue":null,"a1":"A3","val":"nametest"},"Surname":{"col":2,"row":3,"inputValue":"surnametest","numericValue":null,"a1":"B3","val":"surnametest"},"Age":{"col":3,"row":3,"inputValue":"agetest","numericValue":null,"a1":"C3","val":"agetest"},"Weight":{"col":4,"row":3,"inputValue":"weighttest","numericValue":null,"a1":"D3","val":"weighttest"},"Height":{"col":5,"row":3,"inputValue":"heighttest","numericValue":null,"a1":"E3","val":"heighttest"}}}
+end
+, true);
+
+        UtilArray::sortKeysRecursive($result);
+        $result = json_encode($result);
+
+        UtilArray::sortKeysRecursive($expected);
+        $expected = json_encode($expected);
+
+        $this->assertSame($result, $expected, "Getting data by ranges doesn't work");
+
+        $result     = $l->get(3);
+
+        $expected = json_decode(<<<end
+{"3":{"Name":{"col":1,"row":3,"inputValue":"nametest","numericValue":null,"a1":"A3","val":"nametest"},"Surname":{"col":2,"row":3,"inputValue":"surnametest","numericValue":null,"a1":"B3","val":"surnametest"},"Age":{"col":3,"row":3,"inputValue":"agetest","numericValue":null,"a1":"C3","val":"agetest"},"Weight":{"col":4,"row":3,"inputValue":"weighttest","numericValue":null,"a1":"D3","val":"weighttest"},"Height":{"col":5,"row":3,"inputValue":"heighttest","numericValue":null,"a1":"E3","val":"heighttest"}}}
+end
+, true);
+
+        UtilArray::sortKeysRecursive($result);
+        $result = json_encode($result);
+
+        UtilArray::sortKeysRecursive($expected);
+        $expected = json_encode($expected);
+
+        $this->assertSame($result, $expected, "Getting data by ranges doesn't work");
+
+        $result     = $l->get(4);
+
+        $this->assertSame(json_encode($result), '[]', "Getting data by ranges doesn't work");
+    }
+//    public function testListGet2() {
+//
+//        $service = $this->_getService();
+//
+//        $key = $this->storage('key');
+//
+//        $list = $this->storage('list');
+//
+//        $data = $service->listGet($key, $list);
+//
+//        unset($data['data'][0]['id']);
+//
+//        unset($data['data'][0]['edit']);
+//
+////        "łódźspace": "Coś"
+//        $expected = json_decode(<<<end
+//{
+//  "data": [
+//    {
+//      "data": {
+//        "age": "31",
+//        "height": "180",
+//        "name": "John",
+//        "surname": "Smith",
+//        "weight": "80"
+//      }
+//    }
+//  ],
+//  "startIndex": 1,
+//  "title": "Second",
+//  "totalResults": 1
+//}
+//end
+//,true);
+//
+//        UtilArray::sortKeysRecursive($data);
+//
+//        UtilArray::sortKeysRecursive($expected);
+//
+//        $expected   = json_encode($expected);
+//
+//        $data       = json_encode($data);
+//
+//        $this->assertSame($data, $expected, "Retrieved data from list is not the same as expected");
+//    }
+//    public function testListInsert() {
+//
+//        $service = $this->_getService();
+//
+//        $key = $this->storage('key');
+//
+//        $list = $this->storage('list');
+//
+//        $service->listInsert($key, $list, array(
+//            'Name'          => 'Name test',
+//            'Surname'       => 'Surname test',
+//            'Age'           => 'Age test',
+//            'Weight'        => 'Weight test',
+//            'Height'        => 'Height test',
+//        ));
+////            'Łódź space'    => 'Łódź test',
+//
+//    }
 }
