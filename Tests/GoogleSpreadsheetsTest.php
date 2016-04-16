@@ -404,59 +404,62 @@ end
             "Height"    => 'heighttest'
         ));
 
-        $expected = json_decode(str_replace("\r\n", "",<<<end
-{
-  "data": {
-    "R3C1": {
-      "a1": "A3",
-      "col": 1,
-      "inputValue": "nametest",
-      "numericValue": null,
-      "reason": "Success",
-      "row": 3,
-      "status": 200
-    },
-    "R3C2": {
-      "a1": "B3",
-      "col": 2,
-      "inputValue": "surnametest",
-      "numericValue": null,
-      "reason": "Success",
-      "row": 3,
-      "status": 200
-    },
-    "R3C3": {
-      "a1": "C3",
-      "col": 3,
-      "inputValue": "agetest",
-      "numericValue": null,
-      "reason": "Success",
-      "row": 3,
-      "status": 200
-    },
-    "R3C4": {
-      "a1": "D3",
-      "col": 4,
-      "inputValue": "weighttest",
-      "numericValue": null,
-      "reason": "Success",
-      "row": 3,
-      "status": 200
-    },
-    "R3C5": {
-      "a1": "E3",
-      "col": 5,
-      "inputValue": "heighttest",
-      "numericValue": null,
-      "reason": "Success",
-      "row": 3,
-      "status": 200
-    }
-  },
-  "status": 200
-}
-end
-), true);
+        $expected = array (
+            'data' =>
+                array (
+                    'R3C1' =>
+                        array (
+                            'a1' => 'A3',
+                            'col' => 1,
+                            'inputValue' => 'nametest',
+                            'numericValue' => NULL,
+                            'reason' => 'Success',
+                            'row' => 3,
+                            'status' => 200,
+                        ),
+                    'R3C2' =>
+                        array (
+                            'a1' => 'B3',
+                            'col' => 2,
+                            'inputValue' => 'surnametest',
+                            'numericValue' => NULL,
+                            'reason' => 'Success',
+                            'row' => 3,
+                            'status' => 200,
+                        ),
+                    'R3C3' =>
+                        array (
+                            'a1' => 'C3',
+                            'col' => 3,
+                            'inputValue' => 'agetest',
+                            'numericValue' => NULL,
+                            'reason' => 'Success',
+                            'row' => 3,
+                            'status' => 200,
+                        ),
+                    'R3C4' =>
+                        array (
+                            'a1' => 'D3',
+                            'col' => 4,
+                            'inputValue' => 'weighttest',
+                            'numericValue' => NULL,
+                            'reason' => 'Success',
+                            'row' => 3,
+                            'status' => 200,
+                        ),
+                    'R3C5' =>
+                        array (
+                            'a1' => 'E3',
+                            'col' => 5,
+                            'inputValue' => 'heighttest',
+                            'numericValue' => NULL,
+                            'reason' => 'Success',
+                            'row' => 3,
+                            'status' => 200,
+                        ),
+                ),
+            'status' => 200,
+        );
 
         UtilArray::sortKeysRecursive($result);
         $result = json_encode($result);
@@ -478,10 +481,104 @@ end
 
         $result = $l->get();
 
-        $expected = json_decode(str_replace("\r\n", "",<<<end
-{"2":{"Name":{"col":1,"row":2,"inputValue":"John","numericValue":null,"a1":"A2","val":"John"},"Surname":{"col":2,"row":2,"inputValue":"Smith","numericValue":null,"a1":"B2","val":"Smith"},"Age":{"col":3,"row":2,"inputValue":"31","numericValue":"31.0","a1":"C2","val":"31"},"Weight":{"col":4,"row":2,"inputValue":"80","numericValue":"80.0","a1":"D2","val":"80"},"Height":{"col":5,"row":2,"inputValue":"180","numericValue":"180.0","a1":"E2","val":"180"}},"3":{"Name":{"col":1,"row":3,"inputValue":"nametest","numericValue":null,"a1":"A3","val":"nametest"},"Surname":{"col":2,"row":3,"inputValue":"surnametest","numericValue":null,"a1":"B3","val":"surnametest"},"Age":{"col":3,"row":3,"inputValue":"agetest","numericValue":null,"a1":"C3","val":"agetest"},"Weight":{"col":4,"row":3,"inputValue":"weighttest","numericValue":null,"a1":"D3","val":"weighttest"},"Height":{"col":5,"row":3,"inputValue":"heighttest","numericValue":null,"a1":"E3","val":"heighttest"}}}
-end
-        ), true);
+        $expected = array (
+            2 =>
+                array (
+                    'Name' =>
+                        array (
+                            'col' => 1,
+                            'row' => 2,
+                            'inputValue' => 'John',
+                            'numericValue' => NULL,
+                            'a1' => 'A2',
+                            'val' => 'John',
+                        ),
+                    'Surname' =>
+                        array (
+                            'col' => 2,
+                            'row' => 2,
+                            'inputValue' => 'Smith',
+                            'numericValue' => NULL,
+                            'a1' => 'B2',
+                            'val' => 'Smith',
+                        ),
+                    'Age' =>
+                        array (
+                            'col' => 3,
+                            'row' => 2,
+                            'inputValue' => '31',
+                            'numericValue' => '31.0',
+                            'a1' => 'C2',
+                            'val' => '31',
+                        ),
+                    'Weight' =>
+                        array (
+                            'col' => 4,
+                            'row' => 2,
+                            'inputValue' => '80',
+                            'numericValue' => '80.0',
+                            'a1' => 'D2',
+                            'val' => '80',
+                        ),
+                    'Height' =>
+                        array (
+                            'col' => 5,
+                            'row' => 2,
+                            'inputValue' => '180',
+                            'numericValue' => '180.0',
+                            'a1' => 'E2',
+                            'val' => '180',
+                        ),
+                ),
+            3 =>
+                array (
+                    'Name' =>
+                        array (
+                            'col' => 1,
+                            'row' => 3,
+                            'inputValue' => 'nametest',
+                            'numericValue' => NULL,
+                            'a1' => 'A3',
+                            'val' => 'nametest',
+                        ),
+                    'Surname' =>
+                        array (
+                            'col' => 2,
+                            'row' => 3,
+                            'inputValue' => 'surnametest',
+                            'numericValue' => NULL,
+                            'a1' => 'B3',
+                            'val' => 'surnametest',
+                        ),
+                    'Age' =>
+                        array (
+                            'col' => 3,
+                            'row' => 3,
+                            'inputValue' => 'agetest',
+                            'numericValue' => NULL,
+                            'a1' => 'C3',
+                            'val' => 'agetest',
+                        ),
+                    'Weight' =>
+                        array (
+                            'col' => 4,
+                            'row' => 3,
+                            'inputValue' => 'weighttest',
+                            'numericValue' => NULL,
+                            'a1' => 'D3',
+                            'val' => 'weighttest',
+                        ),
+                    'Height' =>
+                        array (
+                            'col' => 5,
+                            'row' => 3,
+                            'inputValue' => 'heighttest',
+                            'numericValue' => NULL,
+                            'a1' => 'E3',
+                            'val' => 'heighttest',
+                        ),
+                ),
+        );
 
         UtilArray::sortKeysRecursive($result);
         $result = json_encode($result);
@@ -493,10 +590,56 @@ end
 
         $result     = $l->get(3);
 
-        $expected = json_decode(str_replace("\r\n", "",<<<end
-{"3":{"Name":{"col":1,"row":3,"inputValue":"nametest","numericValue":null,"a1":"A3","val":"nametest"},"Surname":{"col":2,"row":3,"inputValue":"surnametest","numericValue":null,"a1":"B3","val":"surnametest"},"Age":{"col":3,"row":3,"inputValue":"agetest","numericValue":null,"a1":"C3","val":"agetest"},"Weight":{"col":4,"row":3,"inputValue":"weighttest","numericValue":null,"a1":"D3","val":"weighttest"},"Height":{"col":5,"row":3,"inputValue":"heighttest","numericValue":null,"a1":"E3","val":"heighttest"}}}
-end
-        ), true);
+        $expected = array (
+            3 =>
+                array (
+                    'Name' =>
+                        array (
+                            'col' => 1,
+                            'row' => 3,
+                            'inputValue' => 'nametest',
+                            'numericValue' => NULL,
+                            'a1' => 'A3',
+                            'val' => 'nametest',
+                        ),
+                    'Surname' =>
+                        array (
+                            'col' => 2,
+                            'row' => 3,
+                            'inputValue' => 'surnametest',
+                            'numericValue' => NULL,
+                            'a1' => 'B3',
+                            'val' => 'surnametest',
+                        ),
+                    'Age' =>
+                        array (
+                            'col' => 3,
+                            'row' => 3,
+                            'inputValue' => 'agetest',
+                            'numericValue' => NULL,
+                            'a1' => 'C3',
+                            'val' => 'agetest',
+                        ),
+                    'Weight' =>
+                        array (
+                            'col' => 4,
+                            'row' => 3,
+                            'inputValue' => 'weighttest',
+                            'numericValue' => NULL,
+                            'a1' => 'D3',
+                            'val' => 'weighttest',
+                        ),
+                    'Height' =>
+                        array (
+                            'col' => 5,
+                            'row' => 3,
+                            'inputValue' => 'heighttest',
+                            'numericValue' => NULL,
+                            'a1' => 'E3',
+                            'val' => 'heighttest',
+                        ),
+                ),
+        );
 
         UtilArray::sortKeysRecursive($result);
         $result = json_encode($result);
