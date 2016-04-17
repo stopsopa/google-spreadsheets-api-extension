@@ -17,7 +17,13 @@ class SimpleXMLElementHelper {
      * Because working with pure SimpleXMLElement is really shitty
      * source: http://php.net/manual/en/class.simplexmlelement.php#111394
      */
-    public static function normalize(SimpleXMLElement $xml, $force = false, $addNative = false) {
+    public static function normalize(SimpleXMLElement $xml, $force = false, $addNative = false, $ns = null) {
+
+        if (is_null($ns)) {
+            $ns = $xml->getNamespaces(true);
+        }
+
+        $nsc = (bool)count($ns);
 
         $obj = new StdClass();
 
@@ -31,11 +37,11 @@ class SimpleXMLElementHelper {
             $obj->native = $xml;
         }
 
-        foreach($xml->attributes(null, true) as $k => $v) {
+        foreach($xml->attributes() as $k => $v) {
             $attributes[$k]  = (string)$v;
         }
 
-        foreach($xml->children(null, true) as $k => $v) {
+        foreach($xml->children() as $k => $v) {
             $children[] = static::normalize($v, $force);
         }
 
@@ -48,9 +54,36 @@ class SimpleXMLElementHelper {
         if($force or count($children) > 0)
             $obj->children = $children;
 
+        if ($nsc) {
+
+            $nstags = array();
+
+            foreach ($ns as $name => $url) {
+
+                $tmp = array();
+
+                foreach ($xml->children($url) as $xmlx) {
+
+                    $t = static::normalize($xmlx, $force, $addNative, $ns);
+
+                    if ($t) {
+                        $tmp[] = $t;
+                    }
+                }
+
+                if (count($tmp)) {
+                    $nstags[$name] = $tmp;
+                }
+            }
+
+            if (count($nstags)) {
+                $obj->nstags = $nstags;
+            }
+        }
+
         return $obj;
     }
-    public static function parseFile($file, $force = false, $addNative = false, $getRidOfNamespaces = null) {
+    public static function parseFile($file, $force = false, $addNative = false) {
 
         if (!file_exists($file)) {
             throw new Exception("File '$file' doesn't exists");
@@ -60,7 +93,7 @@ class SimpleXMLElementHelper {
             throw new Exception("File '$file' is not readdable");
         }
 
-        return static::parseString(file_get_contents($file), $force, $addNative, $getRidOfNamespaces);
+        return static::parseString(file_get_contents($file), $force, $addNative);
     }
 
     /**
@@ -71,28 +104,14 @@ class SimpleXMLElementHelper {
      *                                  to remove namepsaces attributes from input xml
      * @return array
      */
-    public static function parseString($xml, $force = false, $addNative = false, $getRidOfNamespaces = null) {
-
-        if (!is_callable($getRidOfNamespaces)) {
-            $getRidOfNamespaces = function ($xml) {
-                return str_replace('xmlns=', 'ns=', str_replace('xmlns:', 'ns:', $xml));
-            };
-        }
-
-//        print_r($xml);
-
-        $xml = call_user_func($getRidOfNamespaces, $xml);
-
-//        print_r($xml);
-
-        libxml_disable_entity_loader(true);
+    public static function parseString($xml, $force = false, $addNative = false) {
 
         $libxml_previous_state = libxml_use_internal_errors(true);
 
         /* @var $xml SimpleXMLElement */
-        $xml = new SimpleXMLElement($xml, 0, $data_is_url = false, $ns = null, $is_prefix = true);
+        $xml = new SimpleXMLElement($xml);
 
-        $errors = libxml_get_errors();
+//        $errors = libxml_get_errors();
 
         libxml_clear_errors();
 
