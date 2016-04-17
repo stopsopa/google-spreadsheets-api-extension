@@ -292,51 +292,70 @@ xml;
             "If-Match"=> "*"
         ));
 
-        $xml = SimpleXMLElementHelper::parseString($xml);
-
-
-        print_r($xml);
-        die('end');
-
-        $xml = $xml['xml'];
+        $firstError = 200;
 
         $data = array();
 
-        $firstError = 200;
+        $xml = SimpleXMLElementHelper::parseString($xml);
 
-        foreach ($xml->children as &$a) {
-            if ($a->name === 'atom:entry') {
+        if (isset($xml['xml']['nstags'])) {
 
-                $x = &$a->children;
+            $xml = $xml['xml']['nstags'];
 
-                $title      = $this->_findNode($x, 'atom:title');
-                $content    = $this->_findNode($x, 'atom:content');
-                $status     = $this->_findNode($x, 'batch:status');
-                $id         = $this->_findNode($x, 'batch:id');
+            foreach ($xml['atom'] as &$tag) {
+                if ($tag['name'] === 'entry') {
 
-                // if error then there is no gs:cell node
-                $cell       = $this->_findNode($x, 'gs:cell');
+                    $x = &$tag['nstags'];
 
-                $code       = (int)$status->attributes['code'];
+                    $title      = $this->_findTag($x, 'atom', 'title');
+                    $content    = $this->_findTag($x, 'atom', 'content');
+                    $status     = $this->_findTag($x, 'batch', 'status');
+                    $id         = $this->_findTag($x, 'batch', 'id');
 
-                if ($firstError === 200 && $code !== 200) {
-                    $firstError = $code;
+                    // if error then there is no gs:cell node
+                    $cell       = $this->_findTag($x, 'gs', 'cell');
+
+                    $code       = $this->_findTag($status, 'attributes', 'code');
+
+                    $reason     = $this->_findTag($status, 'attributes', 'reason');
+
+                    if ($code && $reason) {
+
+                        $code       = (int)$code['val'];
+
+                        if ($firstError === 200 && $code !== 200) {
+                            $firstError = $code;
+                        }
+
+                        $row = array(
+                            'a1'            => $title['text'],
+                            'status'        => $code,
+                            'reason'        => $reason['val']
+                        );
+
+                        if ($cell) {
+                            $t             = $this->_findTag($cell, 'attributes', 'col');
+                            if ($t) {
+                                $row['col']             = (int)$t['val'];
+                            }
+
+                            $t             = $this->_findTag($cell, 'attributes', 'row');
+                            if ($t) {
+                                $row['row']             = (int)$t['val'];
+                            }
+
+                            $t             = $this->_findTag($cell, 'attributes', 'numericValue');
+                            $row['numericValue']    = $t ? $t['val'] : null;
+
+                            $t             = $this->_findTag($cell, 'attributes', 'inputValue');
+                            $row['inputValue']    = $t ? $t['val'] : null;
+
+                            $row['inputValue']      = $content['text'];
+                        }
+
+                        $data[$id['text']] = $row;
+                    }
                 }
-
-                $row = array(
-                    'a1'            => $title->text,
-                    'status'        => $code,
-                    'reason'        => $status->attributes['reason']
-                );
-
-                if ($cell) {
-                    $row['col']             = (int)$cell->attributes['col'];
-                    $row['row']             = (int)$cell->attributes['row'];
-                    $row['numericValue']    = isset($cell->attributes['numericValue']) ? $cell->attributes['numericValue'] : null;
-                    $row['inputValue']      = $content->text;
-                }
-
-                $data[$id->text] = $row;
             }
         }
 
@@ -345,12 +364,16 @@ xml;
             'data'      => $data
         );
     }
-    protected function _findNode($collection, $name) {
-        foreach ($collection as &$c) {
-            if ($c->name === $name) {
-                return $c;
+    protected function &_findTag(&$set, $ns, $title) {
+        if (isset($set[$ns]) && is_array($set[$ns])) {
+            foreach ($set[$ns] as &$d) {
+                if ($d['name'] === $title) {
+                    return $d;
+                }
             }
         }
+        $e = null;
+        return $e;
     }
 
     /**

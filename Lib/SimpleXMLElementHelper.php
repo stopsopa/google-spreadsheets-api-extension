@@ -10,6 +10,14 @@ use stdClass;
  *   http://www.w3schools.com/xml/xml_namespaces.asp
  *   http://twigstechtips.blogspot.com/2011/01/php-parsing-simplexml-nodes-with.html
  * Class SimpleXMLElementHelper
+ *
+ * Tip:
+ *   Using SimpleXMLElement there is no method to check if tag is empty <div/>
+ *   or it is build from opening and closed tags <div></div>.
+ *   This behaviour leads to conclusion that SimpleXMLElement
+ *   is good only to traverse data from xml not xml structure itself
+ *   So use this library keeping in mind this conslusion.
+ *
  * @package Stopsopa\UtilsBundle\Lib
  */
 class SimpleXMLElementHelper {
@@ -19,40 +27,43 @@ class SimpleXMLElementHelper {
      */
     public static function normalize(SimpleXMLElement $xml, $force = false, $addNative = false, $ns = null) {
 
-        if (is_null($ns)) {
-            $ns = $xml->getNamespaces(true);
-        }
+        $obj = array();
 
-        $nsc = (bool)count($ns);
+        $obj['name'] = $xml->getName();
 
-        $obj = new StdClass();
+        $obj['text'] = (string)$xml;
 
-        $obj->name = $xml->getName();
-
-        $text = trim((string)$xml);
-        $attributes = array();
         $children = array();
 
         if ($addNative) {
-            $obj->native = $xml;
+            $obj['native'] = $xml;
         }
 
+        $attributes = array();
         foreach($xml->attributes() as $k => $v) {
-            $attributes[$k]  = (string)$v;
+            $attributes[]  = array(
+                'name' => $k,
+                'val' => (string)$v
+            );
         }
+
+        if($force or count($attributes) > 0)
+            $obj['attributes'] = $attributes;
+
 
         foreach($xml->children() as $k => $v) {
             $children[] = static::normalize($v, $force);
         }
 
-        if($force or $text !== '')
-            $obj->text = $text;
-
-        if($force or count($attributes) > 0)
-            $obj->attributes = $attributes;
-
         if($force or count($children) > 0)
-            $obj->children = $children;
+            $obj['children'] = $children;
+
+
+        if (is_null($ns)) {
+            $ns = $xml->getNamespaces(true);
+        }
+
+        $nsc = (bool)count($ns);
 
         if ($nsc) {
 
@@ -77,7 +88,32 @@ class SimpleXMLElementHelper {
             }
 
             if (count($nstags)) {
-                $obj->nstags = $nstags;
+                $obj['nstags'] = $nstags;
+            }
+
+            // nsattrs
+
+            $nsattrs = array();
+
+            foreach ($ns as $name => $url) {
+
+                $tmp = array();
+
+                foreach ($xml->attributes($url) as $name => $val) {
+
+                    $tmp[] = array(
+                        'name' => $name,
+                        'val' => (string)$val
+                    );
+                }
+
+                if (count($tmp)) {
+                    $nsattrs[$name] = $tmp;
+                }
+            }
+
+            if (count($nsattrs)) {
+                $obj['nsattrs'] = $nsattrs;
             }
         }
 
