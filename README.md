@@ -46,14 +46,16 @@ $service->findWorksheetData($key, $wid, $rawResponse = false, $filter = array())
 $service->deleteWorksheet($key, $wid); | array
 $service->update($key, $wid, $data); | array
 $service->findFirstFreeRowForData($key, $wid); | int (1 indexed)
-$service->getList($key, $wid); | [GoogleSpreadsheetsLines](https://github.com/stopsopa/google-spreadsheets-api-extension/blob/master/Services/GoogleSpreadsheetsLines.php)
+$service->getList($key, $wid); | [GoogleSpreadsheetsList](https://github.com/stopsopa/google-spreadsheets-api-extension/blob/master/Services/GoogleSpreadsheetsList.php)
 
 ## Methods of GoogleSpreadsheetsList class
 
-Method with default parameters | Returned type
------------------------------- | -------------
-$list->; |
-$list->; |
+Read more about [list based feed](https://developers.google.com/google-apps/spreadsheets/data#work_with_list-based_feeds).
+
+Method with default parameters | Returned type | Additional description
+------------------------------ | ------------- | -----------------------
+$list->add($data); | array | &nbsp;
+$list->get($filters = null); | array | $filters format see [this](https://github.com/stopsopa/google-spreadsheets-api-extension#filter). <br />Usually use only min-row, max-row.
 $list->; |
 $list->; |
 
@@ -88,7 +90,7 @@ For more informations see in google api [Fetch specific rows or columns](https:/
 
 ## Other details
 
-### Method update
+### Method GoogleSpreadsheets->update()
 
         $service->update($key, $wid, array(
             'A1' => "Name",
@@ -101,7 +103,17 @@ For more informations see in google api [Fetch specific rows or columns](https:/
             'R3C2' => '' // empty string to delete value from cell
         ));
         
-Using this method you can use two types of [positioning notations](https://developers.google.com/google-apps/spreadsheets/data#work_with_cell-based_feeds). Using method *update* you can change/set data in many cells by one [batch request](https://developers.google.com/google-apps/spreadsheets/data#update_multiple_cells_with_a_batch_request).       
+Using this method you can use two types of [positioning notations](https://developers.google.com/google-apps/spreadsheets/data#work_with_cell-based_feeds). Using method *update* you can set/update/delete data in many cells by one [batch request](https://developers.google.com/google-apps/spreadsheets/data#update_multiple_cells_with_a_batch_request).       
+
+### Method GoogleSpreadsheetsList->add()
+
+        $list->add(array(
+            'Name' => 'John',
+            'Surname' => 'Smith',
+            'Age' => '35'
+        ));
+        
+To read more about basic assumptions that describes working with list based feeds go [here](https://developers.google.com/google-apps/spreadsheets/data#work_with_list-based_feeds).
 
     
     
