@@ -7,7 +7,7 @@ namespace Stopsopa\GoogleSpreadsheets\Lib;
  */
 class UtilArray
 {
-    public static function sortKeysRecursive($data, $param = 0, $reverse = false) {
+    public static function sortKeysRecursive(&$data, $param = 0, $reverse = false) {
 
         if (is_array($data)) {
 
@@ -21,8 +21,8 @@ class UtilArray
                 ksort($data, $param ?: SORT_REGULAR);
             }
 
-            foreach ($data as $key => $d) {
-                $data[$key] = static::sortKeysRecursive($d, $param, $reverse);
+            foreach ($data as &$d) {
+                static::sortKeysRecursive($d, $param, $reverse);
             }
         }
 

@@ -20,7 +20,7 @@ use Stopsopa\GoogleSpreadsheets\Utils\CellConverter;
  *  also
  *  http://blog.evantahler.com/blog/curl-your-way-into-the-google-analytics-api.html
  */
-class GoogleSpreadsheetsLines {
+class GoogleSpreadsheetsList {
     protected $nextLine;
     protected $headers;
     protected $flipHeaders;

@@ -143,7 +143,7 @@ class GoogleSpreadsheets {
 
         return $httpRequest->getResponseBody();
     }
-    public function findFiles($rawResponse = false) {
+    public function findSpreadsheets($rawResponse = false) {
 
         $data = $this->api('/feeds/spreadsheets/private/full');
 
@@ -244,11 +244,9 @@ xml
 xml
         ;
 
-        $this->api($edit, 'put', $xml, array(
+        return $this->api($edit, 'put', $xml, array(
             "Content-Type" => "application/atom+xml"
         ));
-
-        return $this;
     }
     /**
      * https://developers.google.com/google-apps/spreadsheets/data#retrieve_a_list-based_feed
@@ -448,7 +446,7 @@ xml;
 
         return $last + 1;
     }
-    public function listGet($key, $wid, $rawResponse = false) {
+    public function listApi($key, $wid, $rawResponse = false) {
 
         $raw = $this->api("/feeds/list/$key/$wid/private/full");
 
@@ -490,10 +488,10 @@ xml;
     /**
      * @param $key
      * @param $wid
-     * @return GoogleSpreadsheetsLines
+     * @return GoogleSpreadsheetsList
      */
     public function getList($key, $wid) {
-        return new GoogleSpreadsheetsLines($this, $key, $wid);
+        return new GoogleSpreadsheetsList($this, $key, $wid);
     }
 
     /**
@@ -560,10 +558,4 @@ xml;
 //
 //        print_r($data);
 //    }
-    protected function _normalizeKey($key) {
-        return preg_replace('#\s+#', '', $key);
-    }
-    protected function _dump($data) {
-        fwrite(STDOUT, print_r($data, true));
-    }
 }

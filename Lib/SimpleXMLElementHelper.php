@@ -27,16 +27,16 @@ class SimpleXMLElementHelper {
      */
     public static function normalize(SimpleXMLElement $xml, $force = false, $addNative = false, $ns = null) {
 
-        $obj = array();
+        $r = array();
 
-        $obj['name'] = $xml->getName();
+        $r['name'] = $xml->getName();
 
-        $obj['text'] = (string)$xml;
+        $r['text'] = (string)$xml;
 
         $children = array();
 
         if ($addNative) {
-            $obj['native'] = $xml;
+            $r['native'] = $xml;
         }
 
         $attributes = array();
@@ -48,7 +48,7 @@ class SimpleXMLElementHelper {
         }
 
         if($force or count($attributes) > 0)
-            $obj['attributes'] = $attributes;
+            $r['attributes'] = $attributes;
 
 
         foreach($xml->children() as $k => $v) {
@@ -56,16 +56,14 @@ class SimpleXMLElementHelper {
         }
 
         if($force or count($children) > 0)
-            $obj['children'] = $children;
+            $r['children'] = $children;
 
 
         if (is_null($ns)) {
             $ns = $xml->getNamespaces(true);
         }
 
-        $nsc = (bool)count($ns);
-
-        if ($nsc) {
+        if (count($ns)) {
 
             $nstags = array();
 
@@ -88,7 +86,7 @@ class SimpleXMLElementHelper {
             }
 
             if (count($nstags)) {
-                $obj['nstags'] = $nstags;
+                $r['nstags'] = $nstags;
             }
 
             // nsattrs
@@ -113,11 +111,11 @@ class SimpleXMLElementHelper {
             }
 
             if (count($nsattrs)) {
-                $obj['nsattrs'] = $nsattrs;
+                $r['nsattrs'] = $nsattrs;
             }
         }
 
-        return $obj;
+        return $r;
     }
     public static function parseFile($file, $force = false, $addNative = false) {
 
@@ -147,7 +145,7 @@ class SimpleXMLElementHelper {
         /* @var $xml SimpleXMLElement */
         $xml = new SimpleXMLElement($xml);
 
-//        $errors = libxml_get_errors();
+        $errors = libxml_get_errors();
 
         libxml_clear_errors();
 
@@ -155,7 +153,7 @@ class SimpleXMLElementHelper {
 
         return array(
             'xml'       => static::normalize($xml, $force, $addNative),
-//            'errors'    => $errors ?: array()
+            'errors'    => $errors ?: array()
         );
     }
 }

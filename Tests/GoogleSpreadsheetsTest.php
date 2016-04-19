@@ -263,10 +263,10 @@ class GoogleSpreadsheetsTest extends PHPUnit_Framework_TestCase {
 end
 , true);
 
-        $result = UtilArray::sortKeysRecursive($result);
+        UtilArray::sortKeysRecursive($result);
         $result = json_encode($result);
 
-        $expected = UtilArray::sortKeysRecursive($expected);
+        UtilArray::sortKeysRecursive($expected);
         $expected = json_encode($expected);
 
         $this->assertSame($expected, $result, "Written data are not the same as readed");
@@ -310,10 +310,10 @@ end
 end
 , true);
 
-        $result = UtilArray::sortKeysRecursive($result);
+        UtilArray::sortKeysRecursive($result);
         $result = json_encode($result);
 
-        $expected = UtilArray::sortKeysRecursive($expected);
+        UtilArray::sortKeysRecursive($expected);
         $expected = json_encode($expected);
 
         $this->assertSame($expected, $result, "Getting data by ranges doesn't work");
@@ -461,10 +461,10 @@ end
             'status' => 200,
         );
 
-        $result = UtilArray::sortKeysRecursive($result);
+        UtilArray::sortKeysRecursive($result);
         $result = json_encode($result);
 
-        $expected = UtilArray::sortKeysRecursive($expected);
+        UtilArray::sortKeysRecursive($expected);
         $expected = json_encode($expected);
 
         $this->assertSame($expected, $result, "Getting data by ranges doesn't work");
@@ -580,10 +580,10 @@ end
                 ),
         );
 
-        $result = UtilArray::sortKeysRecursive($result);
+        UtilArray::sortKeysRecursive($result);
         $result = json_encode($result);
 
-        $expected = UtilArray::sortKeysRecursive($expected);
+        UtilArray::sortKeysRecursive($expected);
         $expected = json_encode($expected);
 
         $this->assertSame($expected, $result, "Getting data by ranges doesn't work");
@@ -641,10 +641,10 @@ end
                 ),
         );
 
-        $result = UtilArray::sortKeysRecursive($result);
+        UtilArray::sortKeysRecursive($result);
         $result = json_encode($result);
 
-        $expected = UtilArray::sortKeysRecursive($expected);
+        UtilArray::sortKeysRecursive($expected);
         $expected = json_encode($expected);
 
         $this->assertSame($expected, $result, "Getting data by ranges doesn't work");
@@ -661,7 +661,7 @@ end
 //
 //        $list = $this->storage('list');
 //
-//        $data = $service->listGet($key, $list);
+//        $data = $service->listApi($key, $list);
 //
 //        unset($data['data'][0]['id']);
 //
