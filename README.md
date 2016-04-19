@@ -36,17 +36,17 @@ Most of methods is pretty self-explanatory so normally you can explore them thro
 
 ## Methods of GoogleSpreadsheets class
 
-Method with default parameters | Returned type
------------------------------- | -------------
-$service->findSpreadsheets($rawResponse = false); | array
-$service->findWorksheets($key, $rawResponse = false); | array
-$service->getWorksheetMetadata($key, $wid); | array
-$service->updateWorksheetMetadata($key, $wid, $title = null, $rows = null, $cols = null); | array
-$service->findWorksheetData($key, $wid, $rawResponse = false, $filter = array()); | array
-$service->deleteWorksheet($key, $wid); | array
-$service->update($key, $wid, $data); | array
-$service->findFirstFreeRowForData($key, $wid); | int (1 indexed)
-$service->getList($key, $wid); | [GoogleSpreadsheetsList](https://github.com/stopsopa/google-spreadsheets-api-extension/blob/master/Services/GoogleSpreadsheetsList.php)
+Method with default parameters | Returned type | Additional description
+------------------------------ | ------------- | ----------------------
+$service->findSpreadsheets($rawResponse = false); | array | 
+$service->findWorksheets($key, $rawResponse = false); | array | 
+$service->getWorksheetMetadata($key, $wid); | array |  
+$service->updateWorksheetMetadata($key, $wid, $title = null, $rows = null, $cols = null); | array | 
+$service->findWorksheetData($key, $wid, $rawResponse = false, $filter = array()); | array | 
+$service->deleteWorksheet($key, $wid); | array | 
+$service->update($key, $wid, $data); | array | [doc](https://github.com/stopsopa/google-spreadsheets-api-extension#method-googlespreadsheets-update)
+$service->findFirstFreeRowForData($key, $wid); | int (1 indexed) | 
+$service->getList($key, $wid); |  [GoogleSpreadsheetsList](https://github.com/stopsopa/google-spreadsheets-api-extension/blob/master/Services/GoogleSpreadsheetsList.php) | 
 
 ## Methods of GoogleSpreadsheetsList class
 
@@ -54,7 +54,8 @@ Read more about [list based feed](https://developers.google.com/google-apps/spre
 
 Method with default parameters | Returned type | Additional description
 ------------------------------ | ------------- | -----------------------
-$list->add($data); | array | &nbsp;
+$list->add($data); | array | [doc](https://github.com/stopsopa/google-spreadsheets-api-extension/blob/master/README.md#method-googlespreadsheetslist-add)
+$list->update($row, $data); | array | $row is 1 indexed, $data format like above
 $list->get($filters = null); | array | $filters format see [this](https://github.com/stopsopa/google-spreadsheets-api-extension#filter). <br />Usually use only min-row, max-row.
 $list->; |
 $list->; |
