@@ -57,8 +57,6 @@ Method with default parameters | Returned type | Additional description
 $list->add($data); | array | [doc](https://github.com/stopsopa/google-spreadsheets-api-extension/blob/master/README.md#method-googlespreadsheetslist-add)
 $list->update($row, $data); | array | $row is 1 indexed, $data format like above
 $list->get($filters = null); | array | $filters format see [this](https://github.com/stopsopa/google-spreadsheets-api-extension#filter). <br />Usually use only min-row, max-row.
-$list->; |
-$list->; |
 
 
 ## Commonly used parameters
@@ -104,7 +102,9 @@ For more informations see in google api [Fetch specific rows or columns](https:/
             'R3C2' => '' // empty string to delete value from cell
         ));
         
-Using this method you can use two types of [positioning notations](https://developers.google.com/google-apps/spreadsheets/data#work_with_cell-based_feeds). Using method *update* you can set/update/delete data in many cells by one [batch request](https://developers.google.com/google-apps/spreadsheets/data#update_multiple_cells_with_a_batch_request).       
+Using this method you can use two types of [positioning notations](https://developers.google.com/google-apps/spreadsheets/data#work_with_cell-based_feeds). Using method *update* you can set/update/delete data in many cells by one [batch request](https://developers.google.com/google-apps/spreadsheets/data#update_multiple_cells_with_a_batch_request).  
+
+To convert in both ways these two types of formats use [this](https://github.com/stopsopa/google-spreadsheets-api-extension/blob/master/Utils/CellConverter.php) lib.
 
 ### Method GoogleSpreadsheetsList->add()
 
@@ -119,6 +119,14 @@ To read more about basic assumptions that describes working with list based feed
     
     
 
+
+## License
+
+The MIT License (MIT)
+Copyright (c) 2016 Szymon Działowski
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 
