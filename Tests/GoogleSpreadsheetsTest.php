@@ -39,10 +39,8 @@ class GoogleSpreadsheetsTest extends PHPUnit_Framework_TestCase {
 
             file_put_contents($file, json_encode($storage), FILE_APPEND);
         }
-
-        if (array_key_exists($key, $storage)) {
-            return $storage[$key];
-        }
+        
+        return $storage[$key];
     }
     protected function findFirstWorksheet() {
 
