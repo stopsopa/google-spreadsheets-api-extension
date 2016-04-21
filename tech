@@ -1,6 +1,7 @@
 travis-ci encryption
     https://docs.travis-ci.com/user/encryption-keys/
     https://docs.travis-ci.com/user/encrypting-files/
+    
 
 
 instalation gem fix:
@@ -18,4 +19,6 @@ Pro Tip: You can add it automatically by running with --add.
 ------ ^^^
 
 https://github.com/google/google-api-php-client/issues/913
+
+
 
