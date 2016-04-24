@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.org/stopsopa/google-spreadsheets-api-extension.svg?branch=master)](https://travis-ci.org/stopsopa/google-spreadsheets-api-extension)
 [![Latest Stable Version](https://poser.pugx.org/stopsopa/google-spreadsheets-api-extension/v/stable)](https://packagist.org/packages/stopsopa/google-spreadsheets-api-extension)
-[![Coverage Status](https://coveralls.io/repos/stopsopa/google-spreadsheets-api-extension/badge.svg?branch=master&service=github)](https://coveralls.io/github/stopsopa/google-spreadsheets-api-extension?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/stopsopa/google-spreadsheets-api-extension/badge.svg?branch=master)](https://coveralls.io/github/stopsopa/google-spreadsheets-api-extension?branch=master)
 [![License](https://poser.pugx.org/stopsopa/google-spreadsheets-api-extension/license)](https://packagist.org/packages/stopsopa/google-spreadsheets-api-extension)
 
 
