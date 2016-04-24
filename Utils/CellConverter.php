@@ -1,29 +1,40 @@
 <?php
 
 namespace Stopsopa\GoogleSpreadsheets\Utils;
+use Exception;
 
 // http://forum.jedox.com/index.php/Thread/4549-How-to-refer-to-a-cell-in-R1C1-style/
 // g(How to refer to a cell in R1C1 style jedox)
 class CellConverter {
     public static function toLetter($number)
     {
+        $number = (int)$number;
+
+        if ($number < 1) {
+            throw new Exception("Number is '$number' but can't be less then 1");
+        }
+
         $c = 0;
-        for ($let = 'A' ; $let <= 'ZZZZZ' ; ++$let) {
+        for ($let = 'A' ; $let <= 'ZZZ' ; ++$let) {
             $c += 1;
             if ($number === $c) {
                 return $let;
             }
         }
+
+        throw new Exception("$number is out of range");
     }
     public static function toNumber($letter)
     {
         $n = 0;
-        for ($let = 'A' ; $let < 'ZZZZZ' ; ++$let) {
+        for ($let = 'A' ; $let < 'ZZZ' ; ++$let) {
             $n += 1;
             if ($let === $letter) {
                 return $n;
             }
         }
+
+        throw new Exception("$letter is out of range");
     }
 
     public static function anyToRC($cell) {

@@ -9,6 +9,7 @@ use Google_Service_Drive;
 use Google_Service_Drive_ParentReference;
 use Exception;
 use Stopsopa\GoogleSpreadsheets\Lib\UtilArray;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 class GoogleSpreadsheetsTest extends PHPUnit_Framework_TestCase {
     /**
@@ -88,6 +89,8 @@ class GoogleSpreadsheetsTest extends PHPUnit_Framework_TestCase {
      * https://developers.google.com/drive/v3/web/folder#creating_a_folder
      * Uwaga czasem nie zgadzają się metody z tego api z tymi które są w google/apiclient
      * np manual każe używać ->create) a jest ->insert(
+     *
+     * @group coverage
      */
     public function testCreateDirectory() {
 
@@ -118,6 +121,9 @@ class GoogleSpreadsheetsTest extends PHPUnit_Framework_TestCase {
 
         return $file->id;
     }
+    /**
+     * @group coverage
+     */
     public function testCreateSpreadSheet() {
 
         $title = 'testSpreadSheet';

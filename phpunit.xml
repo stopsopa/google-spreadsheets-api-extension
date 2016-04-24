@@ -9,11 +9,25 @@
     <!--referencja jest tu: http://apigen.juzna.cz/doc/sebastianbergmann/phpunit/class-PHPUnit_Util_Configuration.html-->
     <testsuites>
         <testsuite name="Test phpunit">
-            <directory>./Tests</directory>
+            <directory>Tests</directory>
             <!--<file>tests/file.php</file>-->
+            <exclude>Tests/CellConverterTest.php</exclude>
         </testsuite>
     </testsuites>
 
+    <!--<groups>-->
+        <!--<include>-->
+            <!--<group>coverage</group>-->
+        <!--</include>-->
+        <!--&lt;!&ndash;<exclude>&ndash;&gt;-->
+            <!--&lt;!&ndash;<group>name</group>&ndash;&gt;-->
+        <!--&lt;!&ndash;</exclude>&ndash;&gt;-->
+    <!--</groups>-->
+
+    <logging>
+        <log type="coverage-clover" target="build/logs/clover.xml"/>
+        <log type="coverage-text" target="php://stdout" showUncoveredFiles="false"/>
+    </logging>
 
     <!-- dla wygenerowania codecoverage vvv -->
 
@@ -24,10 +38,8 @@
 
     <filter>
         <whitelist>
-            <directory suffix="Test.php">./Tests</directory>
-            <exclude>
-                <directory>./vendor</directory>
-            </exclude>
+            <directory suffix=".php">Services</directory>
+            <directory suffix=".php">Utils</directory>
         </whitelist>
     </filter>
     <!-- dla wygenerowania codecoverage ^^^ -->
