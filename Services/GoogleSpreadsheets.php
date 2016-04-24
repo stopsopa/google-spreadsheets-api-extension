@@ -1,7 +1,6 @@
 <?php
 
 namespace Stopsopa\GoogleSpreadsheets\Services;
-use Exception;
 use Google_Http_Request;
 use Google_Client;
 use Google_Auth_AssertionCredentials;
@@ -41,17 +40,17 @@ class GoogleSpreadsheets {
     }
     protected function _isInitializationCheck() {
         if (!$this->client) {
-            throw new Exception("Use one of methods setupByServiceAccountKey|setupByOauthClientId|setupByApiKey to initialize service first");
+            throw new GoogleSpreadsheetException("Use one of methods setupByServiceAccountKey|setupByOauthClientId|setupByApiKey to initialize service first");
         }
     }
     public function setupByServiceAccountKey($p12_key_file_location, $client_email) {
 
         if (!file_exists($p12_key_file_location)) {
-            throw new Exception("File '$p12_key_file_location' file doesn't exists");
+            throw new GoogleSpreadsheetException("File '$p12_key_file_location' file doesn't exists");
         }
 
         if (!is_readable($p12_key_file_location)) {
-            throw new Exception("File '$p12_key_file_location' is not readdable");
+            throw new GoogleSpreadsheetException("File '$p12_key_file_location' is not readdable");
         }
 
         $private_key = file_get_contents($p12_key_file_location);
@@ -76,12 +75,13 @@ class GoogleSpreadsheets {
 
         return $this->client;
     }
-    public function setupByOauthClientId() {
-
-    }
-    public function setupByApiKey() {
-
-    }
+    // not implemented yet and even i'm not sure if they are really needed
+//    public function setupByOauthClientId() {
+//
+//    }
+//    public function setupByApiKey() {
+//
+//    }
     public function api($feedurl, $method = 'GET', $data = '', $headers = array(), $returnJson = true) {
 
         if ($returnJson) {
@@ -127,8 +127,7 @@ class GoogleSpreadsheets {
         $httpRequest = $this->client->getIo()->makeRequest($request);
 
         if (!in_array(($code = $httpRequest->getResponseHttpCode()), array(200, 201))) {
-            print_r($httpRequest);
-            throw new Exception("Wrong status code: ".$code. " response: ".json_encode($httpRequest->getResponseBody(), true));
+            throw new GoogleSpreadsheetException("Wrong status code: ".$code. " response: ".json_encode($httpRequest->getResponseBody(), true), $code);
         }
 
 
@@ -171,6 +170,8 @@ class GoogleSpreadsheets {
                 return $data['feed']['entry'][$index];
             }
         }
+
+        throw new GoogleSpreadsheetException("Worksheet key: '$key' wid: '$wid' not found");
     }
     public function findWorksheets($key, $rawResponse = false) {
 
@@ -390,7 +391,7 @@ xml;
      *       ]
      *
      * @return array|mixed|string
-     * @throws Exception
+     * @throws GoogleSpreadsheetException
      */
     public function findWorksheetData($key, $wid, $rawResponse = false, $filter = array()) {
 
@@ -446,44 +447,44 @@ xml;
 
         return $last + 1;
     }
-    public function listApi($key, $wid, $rawResponse = false) {
-
-        $raw = $this->api("/feeds/list/$key/$wid/private/full");
-
-        if ($rawResponse) {
-            return $raw;
-        }
-
-        $data = array(
-            'title' => $raw['feed']['title']['$t'],
-            'totalResults' => (int)$raw['feed']['openSearch$totalResults']['$t'],
-            'startIndex' => (int)$raw['feed']['openSearch$startIndex']['$t'],
-        );
-
-        $list = array();
-
-        foreach ($raw['feed']['entry'] as &$d) {
-            $row = array(
-                'id' => preg_replace('#^.*?/([^/]+)$#', '$1', $d['id']['$t']),
-                'edit' => $d['link'][1]['href']
-            );
-
-            $dat = array();
-            foreach ($d as $key => $dd) {
-                if (strpos($key, 'gsx$') === 0) {
-                    $dat[substr($key, 4)] = $dd['$t'];
-                }
-            }
-
-            $row['data'] = $dat;
-
-            $list[] = $row;
-        }
-
-        $data['data'] = $list;
-
-        return $data;
-    }
+//    public function listApi($key, $wid, $rawResponse = false) {
+//
+//        $raw = $this->api("/feeds/list/$key/$wid/private/full");
+//
+//        if ($rawResponse) {
+//            return $raw;
+//        }
+//
+//        $data = array(
+//            'title' => $raw['feed']['title']['$t'],
+//            'totalResults' => (int)$raw['feed']['openSearch$totalResults']['$t'],
+//            'startIndex' => (int)$raw['feed']['openSearch$startIndex']['$t'],
+//        );
+//
+//        $list = array();
+//
+//        foreach ($raw['feed']['entry'] as &$d) {
+//            $row = array(
+//                'id' => preg_replace('#^.*?/([^/]+)$#', '$1', $d['id']['$t']),
+//                'edit' => $d['link'][1]['href']
+//            );
+//
+//            $dat = array();
+//            foreach ($d as $key => $dd) {
+//                if (strpos($key, 'gsx$') === 0) {
+//                    $dat[substr($key, 4)] = $dd['$t'];
+//                }
+//            }
+//
+//            $row['data'] = $dat;
+//
+//            $list[] = $row;
+//        }
+//
+//        $data['data'] = $list;
+//
+//        return $data;
+//    }
 
     /**
      * @param $key

@@ -1,7 +1,6 @@
 <?php
 
 namespace Stopsopa\GoogleSpreadsheets\Services;
-use Exception;
 use Google_Http_Request;
 use Google_Client;
 use Google_Auth_AssertionCredentials;
@@ -43,6 +42,7 @@ class GoogleSpreadsheetsList {
     protected function _init() {
 
         if ( ! $this->nextLine ) {
+
             $data = $this->service->findWorksheetData($this->key, $this->wid);
 
             $last = 0;
@@ -67,7 +67,7 @@ class GoogleSpreadsheetsList {
             $this->nextLine = $last + 1;
 
             if (!count($this->headers)) {
-                throw new Exception("Header row is not defined in worksheet (key: {$this->key}, wid: {$this->wid})");
+                throw new GoogleSpreadsheetException("Header row is not defined in worksheet (key: {$this->key}, wid: {$this->wid})");
             }
 
             $this->flipHeaders = array_flip($this->headers);
@@ -99,7 +99,7 @@ class GoogleSpreadsheetsList {
     /**
      * @param $row - row index (indexed from 1)
      * @param $data - array where key is name of column an value is data to write in cell
-     * @throws Exception
+     * @throws GoogleSpreadsheetException
      */
     public function update($row, $data) {
         return $this->add($data, $row);
@@ -109,7 +109,7 @@ class GoogleSpreadsheetsList {
      * @param int|array $filters -
      *          int: num of row (1 indexed) if one row needed
      *          array of filters (min-row, max-row - both inclusive) if many rows needed
-     * @throws Exception
+     * @throws GoogleSpreadsheetException
      */
     public function get($filters = null) {
 

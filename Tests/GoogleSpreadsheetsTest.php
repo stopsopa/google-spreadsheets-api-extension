@@ -2,12 +2,12 @@
 
 namespace Stopsopa\GoogleSpreadsheets\Services;
 use PHPUnit_Framework_TestCase;
+use Stopsopa\GoogleSpreadsheets\Services\GoogleSpreadsheetException;
 use Stopsopa\GoogleSpreadsheets\Lib\SimpleXMLElementHelper;
 use Stopsopa\GoogleSpreadsheets\Services\GoogleSpreadsheets;
 use Google_Service_Drive_DriveFile;
 use Google_Service_Drive;
 use Google_Service_Drive_ParentReference;
-use Exception;
 use Stopsopa\GoogleSpreadsheets\Lib\UtilArray;
 use Symfony\Component\Serializer\Annotation\Groups;
 
@@ -84,6 +84,72 @@ class GoogleSpreadsheetsTest extends PHPUnit_Framework_TestCase {
     }
     protected function _getDriveService() {
         return new Google_Service_Drive($this->_getService()->getClient());
+    }
+
+    /**
+     * @expectedException Stopsopa\GoogleSpreadsheets\Services\GoogleSpreadsheetException
+     * @expectedExceptionMessage Use one of methods setupByServiceAccountKey|setupByOauthClientId|setupByApiKey to initialize service first
+     * @expectedExceptionCode null
+     */
+    public function testNotInitialized() {
+
+        $service = new GoogleSpreadsheets();
+
+        $service->findSpreadsheets();
+    }
+
+    /**
+     * @expectedException Stopsopa\GoogleSpreadsheets\Services\GoogleSpreadsheetException
+     * @expectedExceptionCode 404
+     */
+    public function testWrongResponseCode() {
+
+        $service = $this->_getService();
+
+        $service->api('/thisurliswrong');
+    }
+    public function testRawsSpreadsheets() {
+
+        $service = $this->_getService();
+
+        $list = $service->findSpreadsheets(true);
+
+        $this->assertGreaterThan(0, count($list['feed']['entry']));
+    }
+    public function testSpreadsheets() {
+
+        $service = $this->_getService();
+
+        $list = $service->findSpreadsheets();
+
+        $this->assertGreaterThan(0, count($list));
+    }
+
+    /**
+     * @expectedException Stopsopa\GoogleSpreadsheets\Services\GoogleSpreadsheetException
+     * @expectedExceptionCode null
+     */
+    public function testFindWrongWorksheet() {
+
+        $service = $this->_getService();
+
+        $key = $this->storage('key');
+
+        $wrongsp = 'wrongwid';
+
+        $service->getWorksheetMetadata($key, $wrongsp);
+    }
+    public function testRawsWorksheets() {
+
+        $service = $this->_getService();
+
+        $key = $this->storage('key');
+
+        $wid = $this->findFirstWorksheet($key);
+
+        $list = $service->findWorksheetData($key, $wid, true);
+
+        $this->assertGreaterThan(0, count($list['feed']['entry']));
     }
     /**
      * https://developers.google.com/drive/v3/web/folder#creating_a_folder

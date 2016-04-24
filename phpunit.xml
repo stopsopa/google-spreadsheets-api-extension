@@ -11,7 +11,7 @@
         <testsuite name="Test phpunit">
             <directory>Tests</directory>
             <!--<file>tests/file.php</file>-->
-            <exclude>Tests/CellConverterTest.php</exclude>
+            <!--<exclude>Tests/CellConverterTest.php</exclude>-->
         </testsuite>
     </testsuites>
 
@@ -19,7 +19,8 @@
         <!--<include>-->
             <!--<group>coverage</group>-->
         <!--</include>-->
-        <!--&lt;!&ndash;<exclude>&ndash;&gt;-->
+        <!--&lt;!&ndash;<exclude>&nda
+        sh;&gt;-->
             <!--&lt;!&ndash;<group>name</group>&ndash;&gt;-->
         <!--&lt;!&ndash;</exclude>&ndash;&gt;-->
     <!--</groups>-->
