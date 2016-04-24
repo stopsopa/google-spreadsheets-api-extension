@@ -79,6 +79,30 @@ class GoogleSpreadsheetsTest extends PHPUnit_Framework_TestCase {
 
         return $file->id;
     }
+    /**
+     * @group coverage
+     */
+    public function testCreateSpreadSheet() {
+
+        $title = 'testSpreadSheet';
+
+        $file = new Google_Service_Drive_DriveFile();
+        $file->setTitle($title);
+        $file->setMimeType('application/vnd.google-apps.spreadsheet');
+
+        // parent dir
+        $parent = new Google_Service_Drive_ParentReference();
+        $parent->setId($this->storage('dir'));
+        $file->setParents(array($parent));
+
+        $file = $this->_getDriveService()->files->insert($file, [
+            'fields' => 'id'
+        ]);
+
+        $this->assertTrue(strlen($file->id) > 0);
+
+        $this->storage('key', $file->id);
+    }
     protected function findFirstWorksheet() {
 
         $service = $this->_getService();
@@ -175,52 +199,6 @@ class GoogleSpreadsheetsTest extends PHPUnit_Framework_TestCase {
 
         $service->getWorksheetMetadata($key, $wrongsp);
     }
-    public function testRawsWorksheet() {
-
-        $service = $this->_getService();
-
-        $key = $this->storage('key');
-
-        $wid = $this->findFirstWorksheet($key);
-
-        $list = $service->findWorksheetData($key, $wid, true);
-
-        $this->assertGreaterThan(0, count($list['feed']['entry']));
-    }
-    /**
-     * @group coverage
-     */
-    public function testCreateSpreadSheet() {
-
-        $title = 'testSpreadSheet';
-
-        $file = new Google_Service_Drive_DriveFile();
-        $file->setTitle($title);
-        $file->setMimeType('application/vnd.google-apps.spreadsheet');
-
-        // parent dir
-        $parent = new Google_Service_Drive_ParentReference();
-        $parent->setId($this->storage('dir'));
-        $file->setParents(array($parent));
-
-        $file = $this->_getDriveService()->files->insert($file, [
-            'fields' => 'id'
-        ]);
-
-        $this->assertTrue(strlen($file->id) > 0);
-
-        $this->storage('key', $file->id);
-    }
-    public function testFindWorksheets() {
-
-        $service = $this->_getService();
-
-        $key = $this->storage('key');
-
-        $data = $service->findWorksheets($key, true);
-
-        $this->assertTrue(count($data['extra']) > 0);
-    }
     public function testCreateWorkSheets() {
 
         $service = $this->_getService();
@@ -238,6 +216,16 @@ class GoogleSpreadsheetsTest extends PHPUnit_Framework_TestCase {
         $data = $service->findWorksheets($key);
 
         $this->assertTrue(count($data) === 4);
+    }
+    public function testFindWorksheets() {
+
+        $service = $this->_getService();
+
+        $key = $this->storage('key');
+
+        $data = $service->findWorksheets($key, true);
+
+        $this->assertTrue(count($data['extra']) > 0);
     }
     public function testRmoveWorksheet() {
 
@@ -292,6 +280,18 @@ class GoogleSpreadsheetsTest extends PHPUnit_Framework_TestCase {
             'D4' => '2',
             'D5' => '=SUM(D3:D4)'
         ));
+    }
+    public function testRawsWorksheet() {
+
+        $service = $this->_getService();
+
+        $key = $this->storage('key');
+
+        $wid = $this->findFirstWorksheet($key);
+
+        $list = $service->findWorksheetData($key, $wid, true);
+
+        $this->assertGreaterThan(0, count($list['feed']['entry']));
     }
     public function testValesOfD5() {
 
