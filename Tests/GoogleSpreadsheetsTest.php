@@ -43,6 +43,52 @@ class GoogleSpreadsheetsTest extends PHPUnit_Framework_TestCase {
 
         return $storage[$key];
     }
+    /**
+     * https://developers.google.com/drive/v3/web/folder#creating_a_folder
+     * Uwaga czasem nie zgadzają się metody z tego api z tymi które są w google/apiclient
+     * np manual każe używać ->create) a jest ->insert(
+     *
+     * @group coverage
+     */
+    public function testCreateDirectory() {
+
+        $title = date("Y-m-d-H-i").'-s-travis-ci-build-'.preg_replace('#[^a-z\d]#i', '-', phpversion());
+
+        $title = preg_replace('#--+#', '-', $title);
+
+        $file = new Google_Service_Drive_DriveFile();
+
+        $file->setTitle($title);
+
+        // list of mime types: https://developers.google.com/drive/v3/web/mime-types?hl=pl
+        // g(Drive REST API Supported MIME Types)
+        $file->setMimeType('application/vnd.google-apps.folder');
+
+        // parent dir
+        $parent = new Google_Service_Drive_ParentReference();
+        $parent->setId(static::$workingDirId);
+        $file->setParents(array($parent));
+
+        $file = $this->_getDriveService()->files->insert($file, [
+            'fields' => 'id'
+        ]);
+
+        $this->storage('dir', $file->id);
+
+        $this->assertTrue(strlen($file->id) > 0);
+
+        return $file->id;
+    }
+    protected function findFirstWorksheet() {
+
+        $service = $this->_getService();
+
+        $key = $this->storage('key');
+
+        $list = $service->findWorksheets($key);
+
+        return $list[0]['id'];
+    }
 
     protected function _getSAI() {
         return getenv('SAI');
@@ -114,41 +160,32 @@ class GoogleSpreadsheetsTest extends PHPUnit_Framework_TestCase {
 
         $this->assertGreaterThan(0, count($list));
     }
+
     /**
-     * https://developers.google.com/drive/v3/web/folder#creating_a_folder
-     * Uwaga czasem nie zgadzają się metody z tego api z tymi które są w google/apiclient
-     * np manual każe używać ->create) a jest ->insert(
-     *
-     * @group coverage
+     * @expectedException Stopsopa\GoogleSpreadsheets\Services\GoogleSpreadsheetException
+     * @expectedExceptionCode null
      */
-    public function testCreateDirectory() {
+    public function testFindWrongWorksheet() {
 
-        $title = date("Y-m-d-H-i").'-s-travis-ci-build-'.preg_replace('#[^a-z\d]#i', '-', phpversion());
+        $service = $this->_getService();
 
-        $title = preg_replace('#--+#', '-', $title);
+        $key = $this->storage('key');
 
-        $file = new Google_Service_Drive_DriveFile();
+        $wrongsp = 'wrongwid';
 
-        $file->setTitle($title);
+        $service->getWorksheetMetadata($key, $wrongsp);
+    }
+    public function testRawsWorksheet() {
 
-        // list of mime types: https://developers.google.com/drive/v3/web/mime-types?hl=pl
-        // g(Drive REST API Supported MIME Types)
-        $file->setMimeType('application/vnd.google-apps.folder');
+        $service = $this->_getService();
 
-        // parent dir
-        $parent = new Google_Service_Drive_ParentReference();
-        $parent->setId(static::$workingDirId);
-        $file->setParents(array($parent));
+        $key = $this->storage('key');
 
-        $file = $this->_getDriveService()->files->insert($file, [
-            'fields' => 'id'
-        ]);
+        $wid = $this->findFirstWorksheet($key);
 
-        $this->storage('dir', $file->id);
+        $list = $service->findWorksheetData($key, $wid, true);
 
-        $this->assertTrue(strlen($file->id) > 0);
-
-        return $file->id;
+        $this->assertGreaterThan(0, count($list['feed']['entry']));
     }
     /**
      * @group coverage
@@ -174,16 +211,6 @@ class GoogleSpreadsheetsTest extends PHPUnit_Framework_TestCase {
 
         $this->storage('key', $file->id);
     }
-    protected function findFirstWorksheet() {
-
-        $service = $this->_getService();
-
-        $key = $this->storage('key');
-
-        $list = $service->findWorksheets($key);
-
-        return $list[0]['id'];
-    }
     public function testFindWorksheets() {
 
         $service = $this->_getService();
@@ -193,33 +220,6 @@ class GoogleSpreadsheetsTest extends PHPUnit_Framework_TestCase {
         $data = $service->findWorksheets($key, true);
 
         $this->assertTrue(count($data['extra']) > 0);
-    }
-
-    /**
-     * @expectedException Stopsopa\GoogleSpreadsheets\Services\GoogleSpreadsheetException
-     * @expectedExceptionCode null
-     */
-    public function testFindWrongWorksheet() {
-
-        $service = $this->_getService();
-
-        $key = $this->storage('key');
-
-        $wrongsp = 'wrongwid';
-
-        $service->getWorksheetMetadata($key, $wrongsp);
-    }
-    public function testRawsWorksheets() {
-
-        $service = $this->_getService();
-
-        $key = $this->storage('key');
-
-        $wid = $this->findFirstWorksheet($key);
-
-        $list = $service->findWorksheetData($key, $wid, true);
-
-        $this->assertGreaterThan(0, count($list['feed']['entry']));
     }
     public function testCreateWorkSheets() {
 
