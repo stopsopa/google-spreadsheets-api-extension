@@ -13,5 +13,8 @@
     },
     "require" : {
         "google/apiclient": "~1"
+    },
+    "require-dev": {
+        "satooshi/php-coveralls": "v0.7.1"
     }
 }

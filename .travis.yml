@@ -13,16 +13,11 @@ before_install:
 - openssl aes-256-cbc -K $encrypted_4d2dcf78dcce_key -iv $encrypted_4d2dcf78dcce_iv
   -in key.p12.enc -out Tests/key.p12 -d
 
-before_script:
-  - curl -s http://getcomposer.org/installer | php
-  - php composer.phar install --dev
-  - mkdir -p build/logs
-
 install:
-  - composer require satooshi/php-coveralls
+  - composer install --no-interaction
 
 script:
-  - phpunit --coverage-clover build/logs/clover.xml --stop-on-failure
+  - phpunit --stop-on-failure
 
 after_success:
   - sh -c 'if [ "$TRAVIS_PHP_VERSION" != "hhvm" ]; then php vendor/bin/coveralls -v; fi;'
@@ -30,8 +25,6 @@ after_success:
 env:
   global:
     secure: HOyru6U+zDaMlcZB5f5JYkxBDGZMNEt7uvkGn5uSwm4zLgUlzJzZ0P7JuMDuxgVZ3Wxfwg1SVpjxz28qXQjAJRAurZvNLFiVme7/fhps6/P4CY7alJw/jZNFvCMA9058CYQKJNSiLQUTnyP5glTA0B5M/4xnShZGw/Jn+Y1JokGj8IAsR23Ke1TIypNolfY+a5d8m1MUlA/3uFPYIkHb1uEgAWPdv1I+dOJoq/XQtaAvNW+TSk4yiWkNNaSoT1/9wdUDIWuOHUPHg07G8/98civjOJ7Xt5bRAa8ctEKDLSWfW8cNuLa6TSQfOJUI0IwjnhDG2mst8ss9JbRQ9ct14P0K2mJvIE7ElDGkPytht97PVm73np+ydrSq5R1AxmtjroOpre/QuTeThttric8nWe9XOlm60hy0sy12eB5YVhQoqEgWoEqczs8WqZ45InjD0siAnKPkx3i5ynJnltbeVQGGFMk6Vdfa5jnW3R/kqz/CVMhyJ9IPmaQxdW8VP10Etj9R2h/Q+E8hdZs6HSWOqyTATAAm/pgqDLvy6nns+GUXupA/d1xQ+TQq5e6NQ8w+u5hjvjrCOKDOQN0XIui5T1MzoFYkK1z+qNCQYtXvOQMeUe6H9/QF/7LP8Wea82exhQ2jOjIlnv4K0NrGkVCnj2idqibSlP0FIqv/l54bw38=
-
-
 
 # coverall ^^^
 
