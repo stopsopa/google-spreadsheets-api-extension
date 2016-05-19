@@ -13,7 +13,7 @@ Follow packagist instructions: [Packagist](https://packagist.org/packages/stopso
 
 ## Setup access to google spreadsheet documents
 
-First You need to generate credentials in [Google API Console](https://console.developers.google.com) type **Service account keys** in [google console](https://console.developers.google.com) (read [more](https://support.google.com/cloud/answer/6158849?hl=en#serviceaccounts)). After that you recieve file '.p12' which is a private key and special e-mail address (eq: applicationname@applicationname.iam.gserviceaccount.com) that you should use to give access to api to specific spreadsheets in google-drive.
+First You need to generate credentials in [Google API Console](https://console.developers.google.com) type **Service account keys** in google (read [more](https://support.google.com/cloud/answer/6158849?hl=en#serviceaccounts)). After that you recieve file '.p12' which is a private key and special e-mail address (eq: applicationname@applicationname.iam.gserviceaccount.com) that you should use to give access to api to specific spreadsheets in google-drive.
 
 ## Setup this library
 
