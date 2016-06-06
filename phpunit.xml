@@ -33,9 +33,6 @@
     <!-- dla wygenerowania codecoverage vvv -->
 
     <!-- phpunit - -coverage-clover build/logs/clover.xml -->
-    <logging>
-        <log type="coverage-clover" target="build/logs/clover.xml"/>
-    </logging>
 
     <filter>
         <whitelist>
