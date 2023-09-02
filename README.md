@@ -3,6 +3,9 @@
 [![Coverage Status](https://coveralls.io/repos/github/stopsopa/google-spreadsheets-api-extension/badge.svg?branch=master)](https://coveralls.io/github/stopsopa/google-spreadsheets-api-extension?branch=master)
 [![License](https://poser.pugx.org/stopsopa/google-spreadsheets-api-extension/license)](https://packagist.org/packages/stopsopa/google-spreadsheets-api-extension)
 
+# DEPRECATED
+Created in 2016 - quite old now and not maintained.
+
 
 # stopsopa/google-spreadsheets-api-extension
 
